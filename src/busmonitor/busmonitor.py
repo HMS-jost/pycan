@@ -22,6 +22,7 @@ from busmonitor.lib import monitorGUI
 # Ensure pycan is importable (editable install or src on path)
 try:
     from pycan.can_api import (
+        BusState,
         CanApi,
         CanApiError,
         CanFilter,
@@ -41,6 +42,7 @@ except ImportError:
     # Allow running from source tree without install
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "pycan"))
     from can_api import (
+        BusState,
         CanApi,
         CanApiError,
         CanFilter,
@@ -102,6 +104,7 @@ class CanMonitor(monitorGUI.monitorGUI):
         self.can_port = CAN_PORT
         self.last_error = 0
         self.api: CanApi | None = None
+        self.timestamp_base: int = 0  # first timestamp_us for relative display
 
         self.cycleCnt = 0
         self.cycleTaskActive = True
@@ -124,7 +127,7 @@ class CanMonitor(monitorGUI.monitorGUI):
                 return json.load(open(fname, "r"))
             except Exception:
                 pass
-        return {"backend": "tlv-udp", "address": "", "baudrate": "500", "can_port": "1"}
+        return {"backend": "tlv-udp", "address": "", "baudrate": "500", "can_port": "1", "data_baudrate": "---"}
 
     def _save_settings(self):
         fname = os.path.join(tempfile.gettempdir(), kSETTINGSFILE)
@@ -133,6 +136,7 @@ class CanMonitor(monitorGUI.monitorGUI):
             "address": self.entAddress.get(),
             "baudrate": self.cbBaudrate.get(),
             "can_port": self.cbCanPort.get(),
+            "data_baudrate": self.cbDataBaudrate.get(),
         }
         try:
             with open(fname, "w") as f:
@@ -150,6 +154,7 @@ class CanMonitor(monitorGUI.monitorGUI):
         self.entAddress.delete(0, tk.END)
         self.entAddress.insert(0, data.get("address", ""))
         self.cbCanPort.set(data.get("can_port", "1"))
+        self.cbDataBaudrate.set(data.get("data_baudrate", "---"))
         self.guiRefreshTargetDisconnected()
         self.refreshInfobar()
         self.root.after(1, self.cycle_gui)
@@ -224,7 +229,7 @@ class CanMonitor(monitorGUI.monitorGUI):
         can_msg = CanMessage(ident, data, id_format, frame_format, frame_type)
 
         # Display in output
-        self.write_output(self._format_message(can_msg, 0))
+        self.write_output(self._format_message(can_msg, 0, self_sent=True))
         self.printReceive()
 
         # Send
@@ -250,15 +255,21 @@ class CanMonitor(monitorGUI.monitorGUI):
             if msg is None:
                 break
             self.receiveCnt += 1
-            output = self._format_message(msg, msg.timestamp_us // 1000 if msg.timestamp_us else 0)
+            ts_us = msg.timestamp_us or 0
+            if self.timestamp_base == 0 and ts_us != 0:
+                self.timestamp_base = ts_us
+            rel_ms = (ts_us - self.timestamp_base) // 1000 if ts_us else 0
+            output = self._format_message(msg, rel_ms)
             self.write_output(output)
 
     # -----------------------------------------------------------------
     # Message formatting
     # -----------------------------------------------------------------
     @staticmethod
-    def _format_message(msg: CanMessage, timestamp_ms: int) -> str:
+    def _format_message(msg: CanMessage, timestamp_ms: int, self_sent: bool = False) -> str:
         flags = ""
+        if self_sent:
+            flags += "S"
         if msg.id_format == IdentifierFormat.EXTENDED:
             flags += "E"
         if msg.frame_type == FrameType.REMOTE:
@@ -355,6 +366,9 @@ class CanMonitor(monitorGUI.monitorGUI):
                 if self.bSend["state"] != tk.NORMAL:
                     self.bSend.configure(state=tk.NORMAL)
                 self.cbBaudrate.configure(state=tk.DISABLED)
+                self.cbDataBaudrate.configure(state=tk.DISABLED)
+                # Update status LEDs from bus state
+                self._update_status_leds()
             else:
                 self.targetmenu.entryconfig(monitorGUI.dMenuEntries["CAN start"], state=tk.ACTIVE)
                 self.targetmenu.entryconfig(monitorGUI.dMenuEntries["CAN stop"], state=tk.DISABLED)
@@ -364,12 +378,58 @@ class CanMonitor(monitorGUI.monitorGUI):
                     self.bCanStop.configure(state=tk.DISABLED)
                 self.cbBaudrate.configure(state=tk.NORMAL)
                 self.cbBaudrate["state"] = "readonly"
+                self.cbDataBaudrate.configure(state=tk.NORMAL)
+                self.cbDataBaudrate["state"] = "readonly"
                 if self.bSend["state"] != tk.DISABLED:
                     self.bSend.configure(state=tk.DISABLED)
                 self.cbTransmit.configure(state=tk.DISABLED)
+                # CAN stopped — all LEDs white
+                self.imgCAN['image'] = self.button_white_icon
+                self.imgPending['image'] = self.button_white_icon
+                self.imgOverrun['image'] = self.button_white_icon
+                self.imgWarning['image'] = self.button_white_icon
+                self.imgBusoff['image'] = self.button_white_icon
         else:
             self.guiRefreshTargetDisconnected()
         self.refreshInfobar()
+
+    def _update_status_leds(self):
+        """Query bus state from API and update the status LED indicators."""
+        try:
+            status = self.api.get_status(self.can_port)
+        except Exception:
+            return
+        state = status.state
+
+        # CAN active LED
+        if state == BusState.RUNNING:
+            self.imgCAN['image'] = self.button_green_icon
+        else:
+            self.imgCAN['image'] = self.button_white_icon
+
+        # Pending (TX queue has data)
+        if status.tx_free == 0 and state == BusState.RUNNING:
+            self.imgPending['image'] = self.button_orange_icon
+        else:
+            self.imgPending['image'] = self.button_white_icon
+
+        # Overrun
+        if state == BusState.OVERRUN:
+            self.imgOverrun['image'] = self.button_orange_icon
+        else:
+            self.imgOverrun['image'] = self.button_white_icon
+
+        # Warning (error passive or warning)
+        if state in (BusState.ERROR_WARNING, BusState.ERROR_PASSIVE):
+            self.imgWarning['image'] = self.button_orange_icon
+        else:
+            self.imgWarning['image'] = self.button_white_icon
+
+        # Bus-off
+        if state == BusState.BUS_OFF:
+            self.imgBusoff['image'] = self.button_red_icon
+        else:
+            self.imgBusoff['image'] = self.button_white_icon
 
     def handleAPIError(self, error_string):
         self.write_output(error_string)
@@ -464,7 +524,19 @@ class CanMonitor(monitorGUI.monitorGUI):
             self.write_output("Invalid bitrate")
             return
 
-        cfg = ControllerConfig(arbitration=CanTiming(bitrate_kbit=bitrate))
+        # FD data bitrate
+        data_baudrate_str = self.cbDataBaudrate.get()
+        data_bitrate = self.str2int(data_baudrate_str) if data_baudrate_str not in ('', '---') else 0
+
+        if data_bitrate > 0:
+            cfg = ControllerConfig(
+                can_fd=True,
+                bitrate_switch=True,
+                arbitration=CanTiming(bitrate_kbit=bitrate),
+                data=CanTiming(bitrate_kbit=data_bitrate),
+            )
+        else:
+            cfg = ControllerConfig(arbitration=CanTiming(bitrate_kbit=bitrate))
         accept_all = [
             CanFilter(IdentifierFormat.STANDARD, mask=0, value=0),
             CanFilter(IdentifierFormat.EXTENDED, mask=0, value=0),
@@ -489,6 +561,7 @@ class CanMonitor(monitorGUI.monitorGUI):
 
         self.canState = "started"
         self.receiveCnt = 0
+        self.timestamp_base = 0
         self.RefreshGui()
 
     def onCanStop(self):
@@ -547,6 +620,7 @@ class CanMonitor(monitorGUI.monitorGUI):
         self.write_output("      data          Data bytes, e.g. '1 2 0x55 0x56'.", logging=False)
         self.write_output("", logging=False)
         self.write_output("  Flags:", logging=False)
+        self.write_output("      S             Self-reception (message sent by this tool).", logging=False)
         self.write_output("      E             Extended frame format (29 bit).", logging=False)
         self.write_output("      R             Remote transmit request.", logging=False)
         self.write_output("      F             CAN FD frame (no BRS).", logging=False)
