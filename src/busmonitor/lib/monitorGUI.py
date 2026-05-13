@@ -288,33 +288,38 @@ class monitorGUI(object):
         row_3 = ttk.Frame(parent)
         row_3.grid(column=0, row=2, sticky=(N,W,E,S))
         row_3['padding'] = (5,5)
+        row_3.columnconfigure(0, weight=1)
 
-        imgLogo = ttk.Label(row_3, image=self.ixxat_logo)
-        imgLogo.grid(column=0, row=0, sticky=(N,W,E,S))
-        imgLogo['padding'] = (0,10)
+        imgLogo = ttk.Label(row_3, text="pyCAN", font=("Arial", 36, "bold italic"), foreground="#003366", anchor="center")
+        imgLogo.grid(column=0, row=0, sticky=(W,E))
+        imgLogo['padding'] = (0,5)
+
+        lblSubtitle = ttk.Label(row_3, text="BY HMS NETWORKS", font=("Arial", 9, "bold italic"), foreground="#003366", anchor="e")
+        lblSubtitle.grid(column=0, row=1, sticky=(W,E))
+        lblSubtitle['padding'] = (10,0)
 
         self.lblProductStringTextVar = StringVar()
         self.lblProductStringTextVar.set("")
         self.lblProductString = Entry(row_3,textvariable=self.lblProductStringTextVar,bd=0,state="readonly")
-        self.lblProductString.grid(column=0, row=1, sticky=(N, W, E, S))
+        self.lblProductString.grid(column=0, row=2, sticky=(N, W, E, S))
         self.lblProductString.bind('<Button-3>', lambda event: rClicker(event, self.lblProductStringTextVar.get()))
 
         self.lblSerialNumberTextVar = StringVar()
         self.lblSerialNumberTextVar.set("")
         self.lblSerialNumber = Entry(row_3,textvariable=self.lblSerialNumberTextVar,bd=0,state="readonly")
-        self.lblSerialNumber.grid(column=0, row=2, sticky=(N, W, E, S))
+        self.lblSerialNumber.grid(column=0, row=3, sticky=(N, W, E, S))
         self.lblSerialNumber.bind('<Button-3>', lambda event: rClicker(event, self.lblSerialNumberTextVar.get()))
 
         self.lblHWVersionTextVar = StringVar()
         self.lblHWVersionTextVar.set("")
         self.lblHWVersion = Entry(row_3,textvariable=self.lblHWVersionTextVar,bd=0,state="readonly")
-        self.lblHWVersion.grid(column=0, row=3, sticky=(N, W, E, S))
+        self.lblHWVersion.grid(column=0, row=4, sticky=(N, W, E, S))
         self.lblHWVersion.bind('<Button-3>', lambda event: rClicker(event, self.lblHWVersionTextVar.get()))
 
         self.lblFWVersionTextVar = StringVar()
         self.lblFWVersionTextVar.set("")
         self.lblFWVersion = Entry(row_3,textvariable=self.lblFWVersionTextVar,bd=0,state="readonly")
-        self.lblFWVersion.grid(column=0, row=4, sticky=(N, W, E, S))
+        self.lblFWVersion.grid(column=0, row=5, sticky=(N, W, E, S))
         self.lblFWVersion.bind('<Button-3>', lambda event: rClicker(event, self.lblFWVersionTextVar.get()))
 
 
