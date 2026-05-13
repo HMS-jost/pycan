@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CanBgiConfig>
+    <select>
+        <author></author>
+        <cfg_name></cfg_name>
+        <add_info></add_info>
+        <conf_type>ASCII Interface</conf_type>
+        <dev_type>CAN@net Basic</dev_type>
+        <version>1</version>
+    </select>
+    <basis>
+        <uc_ipaddr>10.41.18.102</uc_ipaddr>
+        <uc_ipport>19228</uc_ipport>
+        <uc_netmask>255.255.0.0</uc_netmask>
+        <uc_gateway>0.0.0.0</uc_gateway>
+        <mc_ipaddr>225.0.0.250</mc_ipaddr>
+        <mc_ipport>50009</mc_ipport>
+        <mc_collection_time>200</mc_collection_time>
+        <takeover>False</takeover>
+        <status>False</status>
+        <cycle_time>1</cycle_time>
+        <sts_ipaddr>225.0.0.250</sts_ipaddr>
+        <sts_ipport>50010</sts_ipport>
+    </basis>
+    <can_port>
+        <can_box_1>False</can_box_1>
+        <mode_1>set baud-rate via Action Rule</mode_1>
+        <baudrate_1></baudrate_1>
+        <udef_brp_1>9</udef_brp_1>
+        <udef_sjw_1>2</udef_sjw_1>
+        <udef_tseg1_1>15</udef_tseg1_1>
+        <udef_tseg2_1>4</udef_tseg2_1>
+        <udef_baud_1></udef_baud_1>
+        <udef_spoint_1></udef_spoint_1>
+        <baudrateD_1></baudrateD_1>
+        <udef_brpD_1>2</udef_brpD_1>
+        <udef_sjwD_1>1</udef_sjwD_1>
+        <udef_tseg1D_1>7</udef_tseg1D_1>
+        <udef_tseg2D_1>2</udef_tseg2D_1>
+        <udef_tdo_1>15</udef_tdo_1>
+        <udef_baudD_1></udef_baudD_1>
+        <udef_spointD_1></udef_spointD_1>
+    </can_port>
+    <ittt>
+        <grid multiple="true">
+        </grid>
+    </ittt>
+    <mapping_can>
+        <csv_file>./mapping.csv</csv_file>
+        <grid></grid>
+    </mapping_can>
+    <mapping_udp>
+        <csv_file>./mapping.csv</csv_file>
+        <grid></grid>
+    </mapping_udp>
+</CanBgiConfig>

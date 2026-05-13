@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pycan"
+version = "0.1.0"
+description = "Transport-independent CAN API with CAN@net and virtual backends"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+  { name = "Joachim Stolberg" }
+]
+keywords = ["can", "can-fd", "canatnet", "ascii", "udp", "tcp"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Topic :: System :: Hardware",
+]
+
+dependencies = []
+
+[project.scripts]
+pycan-demo = "pycan.demo:main"
+pcbm = "busmonitor.busmonitor:main"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+pycan = ["can_api.h"]

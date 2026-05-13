@@ -1,0 +1,619 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CanBgiConfig>
+    <select>
+        <author></author>
+        <cfg_name></cfg_name>
+        <add_info></add_info>
+        <conf_type>ASCII Gateway Mode</conf_type>
+        <dev_type>CAN@net NT 420</dev_type>
+        <version>13</version>
+    </select>
+    <interface>
+        <line_ending>\n</line_ending>
+        <protocol>TCP</protocol>
+        <ip_port1>19228</ip_port1>
+        <ip_port2>19229</ip_port2>
+        <ip_port3>19240</ip_port3>
+        <serial_box>False</serial_box>
+        <serial_no></serial_no>
+        <expert_mode_box>False</expert_mode_box>
+        <expert_mode>maximum throughput (default)</expert_mode>
+        <data_loss>discard new messages (default)</data_loss>
+    </interface>
+    <master>
+        <basis>
+            <ipaddr>0.0.0.0</ipaddr>
+            <ip_port>19239</ip_port>
+            <lua_adk>disabled</lua_adk>
+            <syslog>disabled</syslog>
+            <mqtt>disabled</mqtt>
+            <remote_access>disabled</remote_access>
+            <serial_box>False</serial_box>
+            <serial_no></serial_no>
+            <expert_mode_box1>False</expert_mode_box1>
+            <expert_mode1>maximum throughput (default)</expert_mode1>
+            <data_loss1>discard new messages (default)</data_loss1>
+            <expert_mode_box2>False</expert_mode_box2>
+            <expert_mode2>maximum throughput (default)</expert_mode2>
+            <data_loss2>discard new messages (default)</data_loss2>
+            <expert_mode_box3>False</expert_mode_box3>
+            <expert_mode3>maximum throughput (default)</expert_mode3>
+            <data_loss3>discard new messages (default)</data_loss3>
+        </basis>
+        <can_ports>
+            <can_box_1>True</can_box_1>
+            <mode_1>Classic CAN</mode_1>
+            <baudrate_1>125</baudrate_1>
+            <udef_brp_1>9</udef_brp_1>
+            <udef_sjw_1>2</udef_sjw_1>
+            <udef_tseg1_1>15</udef_tseg1_1>
+            <udef_tseg2_1>4</udef_tseg2_1>
+            <udef_baud_1></udef_baud_1>
+            <udef_spoint_1></udef_spoint_1>
+            <baudrateD_1>1000</baudrateD_1>
+            <udef_brpD_1>2</udef_brpD_1>
+            <udef_sjwD_1>1</udef_sjwD_1>
+            <udef_tseg1D_1>7</udef_tseg1D_1>
+            <udef_tseg2D_1>2</udef_tseg2D_1>
+            <udef_tdo_1>15</udef_tdo_1>
+            <udef_baudD_1></udef_baudD_1>
+            <udef_spointD_1></udef_spointD_1>
+            <tx_passive_1>False</tx_passive_1>
+            <can_box_2>True</can_box_2>
+            <mode_2>Classic CAN</mode_2>
+            <baudrate_2>125</baudrate_2>
+            <udef_brp_2>9</udef_brp_2>
+            <udef_sjw_2>2</udef_sjw_2>
+            <udef_tseg1_2>15</udef_tseg1_2>
+            <udef_tseg2_2>4</udef_tseg2_2>
+            <udef_baud_2></udef_baud_2>
+            <udef_spoint_2></udef_spoint_2>
+            <baudrateD_2>1000</baudrateD_2>
+            <udef_brpD_2>2</udef_brpD_2>
+            <udef_sjwD_2>1</udef_sjwD_2>
+            <udef_tseg1D_2>7</udef_tseg1D_2>
+            <udef_tseg2D_2>2</udef_tseg2D_2>
+            <udef_tdo_2>15</udef_tdo_2>
+            <udef_baudD_2></udef_baudD_2>
+            <udef_spointD_2></udef_spointD_2>
+            <tx_passive_2>False</tx_passive_2>
+            <can_box_3>True</can_box_3>
+            <mode_3>Classic CAN</mode_3>
+            <baudrate_3>125</baudrate_3>
+            <udef_brp_3>9</udef_brp_3>
+            <udef_sjw_3>2</udef_sjw_3>
+            <udef_tseg1_3>15</udef_tseg1_3>
+            <udef_tseg2_3>4</udef_tseg2_3>
+            <udef_baud_3></udef_baud_3>
+            <udef_spoint_3></udef_spoint_3>
+            <baudrateD_3>1000</baudrateD_3>
+            <udef_brpD_3>2</udef_brpD_3>
+            <udef_sjwD_3>1</udef_sjwD_3>
+            <udef_tseg1D_3>7</udef_tseg1D_3>
+            <udef_tseg2D_3>2</udef_tseg2D_3>
+            <udef_tdo_3>15</udef_tdo_3>
+            <udef_baudD_3></udef_baudD_3>
+            <udef_spointD_3></udef_spointD_3>
+            <tx_passive_3>False</tx_passive_3>
+            <can_box_4>True</can_box_4>
+            <mode_4>Classic CAN</mode_4>
+            <baudrate_4>125</baudrate_4>
+            <udef_brp_4>9</udef_brp_4>
+            <udef_sjw_4>2</udef_sjw_4>
+            <udef_tseg1_4>15</udef_tseg1_4>
+            <udef_tseg2_4>4</udef_tseg2_4>
+            <udef_baud_4></udef_baud_4>
+            <udef_spoint_4></udef_spoint_4>
+            <baudrateD_4>1000</baudrateD_4>
+            <udef_brpD_4>2</udef_brpD_4>
+            <udef_sjwD_4>1</udef_sjwD_4>
+            <udef_tseg1D_4>7</udef_tseg1D_4>
+            <udef_tseg2D_4>2</udef_tseg2D_4>
+            <udef_tdo_4>15</udef_tdo_4>
+            <udef_baudD_4></udef_baudD_4>
+            <udef_spointD_4></udef_spointD_4>
+            <tx_passive_4>False</tx_passive_4>
+            <auto_baud_take_over_timeout>0</auto_baud_take_over_timeout>
+        </can_ports>
+        <trouble>
+            <startup_delay>60</startup_delay>
+            <msg_lost>error</msg_lost>
+            <can_busoff1>warning</can_busoff1>
+            <can_busoff2>warning</can_busoff2>
+            <can_busoff3>warning</can_busoff3>
+            <can_busoff4>warning</can_busoff4>
+            <can_timeout1>no matter</can_timeout1>
+            <can_timeout2>no matter</can_timeout2>
+            <can_timeout3>no matter</can_timeout3>
+            <can_timeout4>no matter</can_timeout4>
+        </trouble>
+        <ittt>
+            <csv_file>./action_rules.csv</csv_file>
+            <grid></grid>
+        </ittt>
+        <syslog>
+            <syslog_ip></syslog_ip>
+            <syslog_prio>Warning (4)</syslog_prio>
+        </syslog>
+        <mqttb>
+            <broker_ip></broker_ip>
+            <broker_port></broker_port>
+            <keepalive></keepalive>
+            <tls_box>False</tls_box>
+            <certificate>disabled</certificate>
+            <auth_box>False</auth_box>
+            <broker_auth></broker_auth>
+            <broker_pwd></broker_pwd>
+            <will_box>False</will_box>
+            <will_topic></will_topic>
+            <will_payload></will_payload>
+            <will_qos>At most once (0)</will_qos>
+            <will_retain>Send retain msg</will_retain>
+        </mqttb>
+        <mqttc>
+            <csv_fileMQTT>./mqtt_subscribe.csv</csv_fileMQTT>
+            <gridMQTT></gridMQTT>
+            <csv_fileCAN>./mqtt_publish.csv</csv_fileCAN>
+            <gridCAN></gridCAN>
+        </mqttc>
+        <remote>
+            <line_ending>\n</line_ending>
+            <protocol>TCP</protocol>
+            <ip_port1>19228</ip_port1>
+            <expert_mode_box>False</expert_mode_box>
+            <expert_mode>maximum throughput (default)</expert_mode>
+        </remote>
+    </master>
+    <slave1>
+        <basis>
+            <ipaddr>0.0.0.0</ipaddr>
+            <ip_port>19239</ip_port>
+            <lua_adk>disabled</lua_adk>
+            <syslog>disabled</syslog>
+            <mqtt>disabled</mqtt>
+            <remote_access>disabled</remote_access>
+            <serial_box>False</serial_box>
+            <serial_no></serial_no>
+            <expert_mode_box1>False</expert_mode_box1>
+            <expert_mode1>maximum throughput (default)</expert_mode1>
+            <data_loss1>discard new messages (default)</data_loss1>
+            <expert_mode_box2>False</expert_mode_box2>
+            <expert_mode2>maximum throughput (default)</expert_mode2>
+            <data_loss2>discard new messages (default)</data_loss2>
+            <expert_mode_box3>False</expert_mode_box3>
+            <expert_mode3>maximum throughput (default)</expert_mode3>
+            <data_loss3>discard new messages (default)</data_loss3>
+        </basis>
+        <can_ports>
+            <can_box_1>True</can_box_1>
+            <mode_1>Classic CAN</mode_1>
+            <baudrate_1>125</baudrate_1>
+            <udef_brp_1>9</udef_brp_1>
+            <udef_sjw_1>2</udef_sjw_1>
+            <udef_tseg1_1>15</udef_tseg1_1>
+            <udef_tseg2_1>4</udef_tseg2_1>
+            <udef_baud_1></udef_baud_1>
+            <udef_spoint_1></udef_spoint_1>
+            <baudrateD_1>1000</baudrateD_1>
+            <udef_brpD_1>2</udef_brpD_1>
+            <udef_sjwD_1>1</udef_sjwD_1>
+            <udef_tseg1D_1>7</udef_tseg1D_1>
+            <udef_tseg2D_1>2</udef_tseg2D_1>
+            <udef_tdo_1>15</udef_tdo_1>
+            <udef_baudD_1></udef_baudD_1>
+            <udef_spointD_1></udef_spointD_1>
+            <tx_passive_1>False</tx_passive_1>
+            <can_box_2>True</can_box_2>
+            <mode_2>Classic CAN</mode_2>
+            <baudrate_2>125</baudrate_2>
+            <udef_brp_2>9</udef_brp_2>
+            <udef_sjw_2>2</udef_sjw_2>
+            <udef_tseg1_2>15</udef_tseg1_2>
+            <udef_tseg2_2>4</udef_tseg2_2>
+            <udef_baud_2></udef_baud_2>
+            <udef_spoint_2></udef_spoint_2>
+            <baudrateD_2>1000</baudrateD_2>
+            <udef_brpD_2>2</udef_brpD_2>
+            <udef_sjwD_2>1</udef_sjwD_2>
+            <udef_tseg1D_2>7</udef_tseg1D_2>
+            <udef_tseg2D_2>2</udef_tseg2D_2>
+            <udef_tdo_2>15</udef_tdo_2>
+            <udef_baudD_2></udef_baudD_2>
+            <udef_spointD_2></udef_spointD_2>
+            <tx_passive_2>False</tx_passive_2>
+            <can_box_3>True</can_box_3>
+            <mode_3>Classic CAN</mode_3>
+            <baudrate_3>125</baudrate_3>
+            <udef_brp_3>9</udef_brp_3>
+            <udef_sjw_3>2</udef_sjw_3>
+            <udef_tseg1_3>15</udef_tseg1_3>
+            <udef_tseg2_3>4</udef_tseg2_3>
+            <udef_baud_3></udef_baud_3>
+            <udef_spoint_3></udef_spoint_3>
+            <baudrateD_3>1000</baudrateD_3>
+            <udef_brpD_3>2</udef_brpD_3>
+            <udef_sjwD_3>1</udef_sjwD_3>
+            <udef_tseg1D_3>7</udef_tseg1D_3>
+            <udef_tseg2D_3>2</udef_tseg2D_3>
+            <udef_tdo_3>15</udef_tdo_3>
+            <udef_baudD_3></udef_baudD_3>
+            <udef_spointD_3></udef_spointD_3>
+            <tx_passive_3>False</tx_passive_3>
+            <can_box_4>True</can_box_4>
+            <mode_4>Classic CAN</mode_4>
+            <baudrate_4>125</baudrate_4>
+            <udef_brp_4>9</udef_brp_4>
+            <udef_sjw_4>2</udef_sjw_4>
+            <udef_tseg1_4>15</udef_tseg1_4>
+            <udef_tseg2_4>4</udef_tseg2_4>
+            <udef_baud_4></udef_baud_4>
+            <udef_spoint_4></udef_spoint_4>
+            <baudrateD_4>1000</baudrateD_4>
+            <udef_brpD_4>2</udef_brpD_4>
+            <udef_sjwD_4>1</udef_sjwD_4>
+            <udef_tseg1D_4>7</udef_tseg1D_4>
+            <udef_tseg2D_4>2</udef_tseg2D_4>
+            <udef_tdo_4>15</udef_tdo_4>
+            <udef_baudD_4></udef_baudD_4>
+            <udef_spointD_4></udef_spointD_4>
+            <tx_passive_4>False</tx_passive_4>
+            <auto_baud_take_over_timeout>0</auto_baud_take_over_timeout>
+        </can_ports>
+        <trouble>
+            <startup_delay>60</startup_delay>
+            <msg_lost>error</msg_lost>
+            <can_busoff1>warning</can_busoff1>
+            <can_busoff2>warning</can_busoff2>
+            <can_busoff3>warning</can_busoff3>
+            <can_busoff4>warning</can_busoff4>
+            <can_timeout1>no matter</can_timeout1>
+            <can_timeout2>no matter</can_timeout2>
+            <can_timeout3>no matter</can_timeout3>
+            <can_timeout4>no matter</can_timeout4>
+        </trouble>
+        <ittt>
+            <csv_file>./action_rules.csv</csv_file>
+            <grid></grid>
+        </ittt>
+        <syslog>
+            <syslog_ip></syslog_ip>
+            <syslog_prio>Warning (4)</syslog_prio>
+        </syslog>
+        <mqttb>
+            <broker_ip></broker_ip>
+            <broker_port></broker_port>
+            <keepalive></keepalive>
+            <tls_box>False</tls_box>
+            <certificate>disabled</certificate>
+            <auth_box>False</auth_box>
+            <broker_auth></broker_auth>
+            <broker_pwd></broker_pwd>
+            <will_box>False</will_box>
+            <will_topic></will_topic>
+            <will_payload></will_payload>
+            <will_qos>At most once (0)</will_qos>
+            <will_retain>Send retain msg</will_retain>
+        </mqttb>
+        <mqttc>
+            <csv_fileMQTT>./mqtt_subscribe.csv</csv_fileMQTT>
+            <gridMQTT></gridMQTT>
+            <csv_fileCAN>./mqtt_publish.csv</csv_fileCAN>
+            <gridCAN></gridCAN>
+        </mqttc>
+        <remote>
+            <line_ending>\n</line_ending>
+            <protocol>TCP</protocol>
+            <ip_port1>19228</ip_port1>
+            <expert_mode_box>False</expert_mode_box>
+            <expert_mode>maximum throughput (default)</expert_mode>
+        </remote>
+    </slave1>
+    <slave2>
+        <basis>
+            <ipaddr>0.0.0.0</ipaddr>
+            <ip_port>19239</ip_port>
+            <lua_adk>disabled</lua_adk>
+            <syslog>disabled</syslog>
+            <mqtt>disabled</mqtt>
+            <remote_access>disabled</remote_access>
+            <serial_box>False</serial_box>
+            <serial_no></serial_no>
+            <expert_mode_box1>False</expert_mode_box1>
+            <expert_mode1>maximum throughput (default)</expert_mode1>
+            <data_loss1>discard new messages (default)</data_loss1>
+            <expert_mode_box2>False</expert_mode_box2>
+            <expert_mode2>maximum throughput (default)</expert_mode2>
+            <data_loss2>discard new messages (default)</data_loss2>
+            <expert_mode_box3>False</expert_mode_box3>
+            <expert_mode3>maximum throughput (default)</expert_mode3>
+            <data_loss3>discard new messages (default)</data_loss3>
+        </basis>
+        <can_ports>
+            <can_box_1>True</can_box_1>
+            <mode_1>Classic CAN</mode_1>
+            <baudrate_1>125</baudrate_1>
+            <udef_brp_1>9</udef_brp_1>
+            <udef_sjw_1>2</udef_sjw_1>
+            <udef_tseg1_1>15</udef_tseg1_1>
+            <udef_tseg2_1>4</udef_tseg2_1>
+            <udef_baud_1></udef_baud_1>
+            <udef_spoint_1></udef_spoint_1>
+            <baudrateD_1>1000</baudrateD_1>
+            <udef_brpD_1>2</udef_brpD_1>
+            <udef_sjwD_1>1</udef_sjwD_1>
+            <udef_tseg1D_1>7</udef_tseg1D_1>
+            <udef_tseg2D_1>2</udef_tseg2D_1>
+            <udef_tdo_1>15</udef_tdo_1>
+            <udef_baudD_1></udef_baudD_1>
+            <udef_spointD_1></udef_spointD_1>
+            <tx_passive_1>False</tx_passive_1>
+            <can_box_2>True</can_box_2>
+            <mode_2>Classic CAN</mode_2>
+            <baudrate_2>125</baudrate_2>
+            <udef_brp_2>9</udef_brp_2>
+            <udef_sjw_2>2</udef_sjw_2>
+            <udef_tseg1_2>15</udef_tseg1_2>
+            <udef_tseg2_2>4</udef_tseg2_2>
+            <udef_baud_2></udef_baud_2>
+            <udef_spoint_2></udef_spoint_2>
+            <baudrateD_2>1000</baudrateD_2>
+            <udef_brpD_2>2</udef_brpD_2>
+            <udef_sjwD_2>1</udef_sjwD_2>
+            <udef_tseg1D_2>7</udef_tseg1D_2>
+            <udef_tseg2D_2>2</udef_tseg2D_2>
+            <udef_tdo_2>15</udef_tdo_2>
+            <udef_baudD_2></udef_baudD_2>
+            <udef_spointD_2></udef_spointD_2>
+            <tx_passive_2>False</tx_passive_2>
+            <can_box_3>True</can_box_3>
+            <mode_3>Classic CAN</mode_3>
+            <baudrate_3>125</baudrate_3>
+            <udef_brp_3>9</udef_brp_3>
+            <udef_sjw_3>2</udef_sjw_3>
+            <udef_tseg1_3>15</udef_tseg1_3>
+            <udef_tseg2_3>4</udef_tseg2_3>
+            <udef_baud_3></udef_baud_3>
+            <udef_spoint_3></udef_spoint_3>
+            <baudrateD_3>1000</baudrateD_3>
+            <udef_brpD_3>2</udef_brpD_3>
+            <udef_sjwD_3>1</udef_sjwD_3>
+            <udef_tseg1D_3>7</udef_tseg1D_3>
+            <udef_tseg2D_3>2</udef_tseg2D_3>
+            <udef_tdo_3>15</udef_tdo_3>
+            <udef_baudD_3></udef_baudD_3>
+            <udef_spointD_3></udef_spointD_3>
+            <tx_passive_3>False</tx_passive_3>
+            <can_box_4>True</can_box_4>
+            <mode_4>Classic CAN</mode_4>
+            <baudrate_4>125</baudrate_4>
+            <udef_brp_4>9</udef_brp_4>
+            <udef_sjw_4>2</udef_sjw_4>
+            <udef_tseg1_4>15</udef_tseg1_4>
+            <udef_tseg2_4>4</udef_tseg2_4>
+            <udef_baud_4></udef_baud_4>
+            <udef_spoint_4></udef_spoint_4>
+            <baudrateD_4>1000</baudrateD_4>
+            <udef_brpD_4>2</udef_brpD_4>
+            <udef_sjwD_4>1</udef_sjwD_4>
+            <udef_tseg1D_4>7</udef_tseg1D_4>
+            <udef_tseg2D_4>2</udef_tseg2D_4>
+            <udef_tdo_4>15</udef_tdo_4>
+            <udef_baudD_4></udef_baudD_4>
+            <udef_spointD_4></udef_spointD_4>
+            <tx_passive_4>False</tx_passive_4>
+            <auto_baud_take_over_timeout>0</auto_baud_take_over_timeout>
+        </can_ports>
+        <trouble>
+            <startup_delay>60</startup_delay>
+            <msg_lost>error</msg_lost>
+            <can_busoff1>warning</can_busoff1>
+            <can_busoff2>warning</can_busoff2>
+            <can_busoff3>warning</can_busoff3>
+            <can_busoff4>warning</can_busoff4>
+            <can_timeout1>no matter</can_timeout1>
+            <can_timeout2>no matter</can_timeout2>
+            <can_timeout3>no matter</can_timeout3>
+            <can_timeout4>no matter</can_timeout4>
+        </trouble>
+        <ittt>
+            <csv_file>./action_rules.csv</csv_file>
+            <grid></grid>
+        </ittt>
+        <syslog>
+            <syslog_ip></syslog_ip>
+            <syslog_prio>Warning (4)</syslog_prio>
+        </syslog>
+        <mqttb>
+            <broker_ip></broker_ip>
+            <broker_port></broker_port>
+            <keepalive></keepalive>
+            <tls_box>False</tls_box>
+            <certificate>disabled</certificate>
+            <auth_box>False</auth_box>
+            <broker_auth></broker_auth>
+            <broker_pwd></broker_pwd>
+            <will_box>False</will_box>
+            <will_topic></will_topic>
+            <will_payload></will_payload>
+            <will_qos>At most once (0)</will_qos>
+            <will_retain>Send retain msg</will_retain>
+        </mqttb>
+        <mqttc>
+            <csv_fileMQTT>./mqtt_subscribe.csv</csv_fileMQTT>
+            <gridMQTT></gridMQTT>
+            <csv_fileCAN>./mqtt_publish.csv</csv_fileCAN>
+            <gridCAN></gridCAN>
+        </mqttc>
+        <remote>
+            <line_ending>\n</line_ending>
+            <protocol>TCP</protocol>
+            <ip_port1>19228</ip_port1>
+            <expert_mode_box>False</expert_mode_box>
+            <expert_mode>maximum throughput (default)</expert_mode>
+        </remote>
+    </slave2>
+    <slave3>
+        <basis>
+            <ipaddr>0.0.0.0</ipaddr>
+            <ip_port>19239</ip_port>
+            <lua_adk>disabled</lua_adk>
+            <syslog>disabled</syslog>
+            <mqtt>disabled</mqtt>
+            <remote_access>disabled</remote_access>
+            <serial_box>False</serial_box>
+            <serial_no></serial_no>
+            <expert_mode_box1>False</expert_mode_box1>
+            <expert_mode1>maximum throughput (default)</expert_mode1>
+            <data_loss1>discard new messages (default)</data_loss1>
+            <expert_mode_box2>False</expert_mode_box2>
+            <expert_mode2>maximum throughput (default)</expert_mode2>
+            <data_loss2>discard new messages (default)</data_loss2>
+            <expert_mode_box3>False</expert_mode_box3>
+            <expert_mode3>maximum throughput (default)</expert_mode3>
+            <data_loss3>discard new messages (default)</data_loss3>
+        </basis>
+        <can_ports>
+            <can_box_1>True</can_box_1>
+            <mode_1>Classic CAN</mode_1>
+            <baudrate_1>125</baudrate_1>
+            <udef_brp_1>9</udef_brp_1>
+            <udef_sjw_1>2</udef_sjw_1>
+            <udef_tseg1_1>15</udef_tseg1_1>
+            <udef_tseg2_1>4</udef_tseg2_1>
+            <udef_baud_1></udef_baud_1>
+            <udef_spoint_1></udef_spoint_1>
+            <baudrateD_1>1000</baudrateD_1>
+            <udef_brpD_1>2</udef_brpD_1>
+            <udef_sjwD_1>1</udef_sjwD_1>
+            <udef_tseg1D_1>7</udef_tseg1D_1>
+            <udef_tseg2D_1>2</udef_tseg2D_1>
+            <udef_tdo_1>15</udef_tdo_1>
+            <udef_baudD_1></udef_baudD_1>
+            <udef_spointD_1></udef_spointD_1>
+            <tx_passive_1>False</tx_passive_1>
+            <can_box_2>True</can_box_2>
+            <mode_2>Classic CAN</mode_2>
+            <baudrate_2>125</baudrate_2>
+            <udef_brp_2>9</udef_brp_2>
+            <udef_sjw_2>2</udef_sjw_2>
+            <udef_tseg1_2>15</udef_tseg1_2>
+            <udef_tseg2_2>4</udef_tseg2_2>
+            <udef_baud_2></udef_baud_2>
+            <udef_spoint_2></udef_spoint_2>
+            <baudrateD_2>1000</baudrateD_2>
+            <udef_brpD_2>2</udef_brpD_2>
+            <udef_sjwD_2>1</udef_sjwD_2>
+            <udef_tseg1D_2>7</udef_tseg1D_2>
+            <udef_tseg2D_2>2</udef_tseg2D_2>
+            <udef_tdo_2>15</udef_tdo_2>
+            <udef_baudD_2></udef_baudD_2>
+            <udef_spointD_2></udef_spointD_2>
+            <tx_passive_2>False</tx_passive_2>
+            <can_box_3>True</can_box_3>
+            <mode_3>Classic CAN</mode_3>
+            <baudrate_3>125</baudrate_3>
+            <udef_brp_3>9</udef_brp_3>
+            <udef_sjw_3>2</udef_sjw_3>
+            <udef_tseg1_3>15</udef_tseg1_3>
+            <udef_tseg2_3>4</udef_tseg2_3>
+            <udef_baud_3></udef_baud_3>
+            <udef_spoint_3></udef_spoint_3>
+            <baudrateD_3>1000</baudrateD_3>
+            <udef_brpD_3>2</udef_brpD_3>
+            <udef_sjwD_3>1</udef_sjwD_3>
+            <udef_tseg1D_3>7</udef_tseg1D_3>
+            <udef_tseg2D_3>2</udef_tseg2D_3>
+            <udef_tdo_3>15</udef_tdo_3>
+            <udef_baudD_3></udef_baudD_3>
+            <udef_spointD_3></udef_spointD_3>
+            <tx_passive_3>False</tx_passive_3>
+            <can_box_4>True</can_box_4>
+            <mode_4>Classic CAN</mode_4>
+            <baudrate_4>125</baudrate_4>
+            <udef_brp_4>9</udef_brp_4>
+            <udef_sjw_4>2</udef_sjw_4>
+            <udef_tseg1_4>15</udef_tseg1_4>
+            <udef_tseg2_4>4</udef_tseg2_4>
+            <udef_baud_4></udef_baud_4>
+            <udef_spoint_4></udef_spoint_4>
+            <baudrateD_4>1000</baudrateD_4>
+            <udef_brpD_4>2</udef_brpD_4>
+            <udef_sjwD_4>1</udef_sjwD_4>
+            <udef_tseg1D_4>7</udef_tseg1D_4>
+            <udef_tseg2D_4>2</udef_tseg2D_4>
+            <udef_tdo_4>15</udef_tdo_4>
+            <udef_baudD_4></udef_baudD_4>
+            <udef_spointD_4></udef_spointD_4>
+            <tx_passive_4>False</tx_passive_4>
+            <auto_baud_take_over_timeout>0</auto_baud_take_over_timeout>
+        </can_ports>
+        <trouble>
+            <startup_delay>60</startup_delay>
+            <msg_lost>error</msg_lost>
+            <can_busoff1>warning</can_busoff1>
+            <can_busoff2>warning</can_busoff2>
+            <can_busoff3>warning</can_busoff3>
+            <can_busoff4>warning</can_busoff4>
+            <can_timeout1>no matter</can_timeout1>
+            <can_timeout2>no matter</can_timeout2>
+            <can_timeout3>no matter</can_timeout3>
+            <can_timeout4>no matter</can_timeout4>
+        </trouble>
+        <ittt>
+            <csv_file>./action_rules.csv</csv_file>
+            <grid></grid>
+        </ittt>
+        <syslog>
+            <syslog_ip></syslog_ip>
+            <syslog_prio>Warning (4)</syslog_prio>
+        </syslog>
+        <mqttb>
+            <broker_ip></broker_ip>
+            <broker_port></broker_port>
+            <keepalive></keepalive>
+            <tls_box>False</tls_box>
+            <certificate>disabled</certificate>
+            <auth_box>False</auth_box>
+            <broker_auth></broker_auth>
+            <broker_pwd></broker_pwd>
+            <will_box>False</will_box>
+            <will_topic></will_topic>
+            <will_payload></will_payload>
+            <will_qos>At most once (0)</will_qos>
+            <will_retain>Send retain msg</will_retain>
+        </mqttb>
+        <mqttc>
+            <csv_fileMQTT>./mqtt_subscribe.csv</csv_fileMQTT>
+            <gridMQTT></gridMQTT>
+            <csv_fileCAN>./mqtt_publish.csv</csv_fileCAN>
+            <gridCAN></gridCAN>
+        </mqttc>
+        <remote>
+            <line_ending>\n</line_ending>
+            <protocol>TCP</protocol>
+            <ip_port1>19228</ip_port1>
+            <expert_mode_box>False</expert_mode_box>
+            <expert_mode>maximum throughput (default)</expert_mode>
+        </remote>
+    </slave3>
+    <mapping>
+        <csv_file>./mapping.csv</csv_file>
+        <grid></grid>
+    </mapping>
+    <j1939>
+        <csv_file></csv_file>
+        <grid></grid>
+    </j1939>
+    <demultiplexer>
+        <csv_file>./test.csv</csv_file>
+        <grid></grid>
+    </demultiplexer>
+    <multiplexer>
+        <csv_file>./test.csv</csv_file>
+        <grid></grid>
+    </multiplexer>
+    <cycle>
+        <csv_file>./cycle.csv</csv_file>
+        <grid></grid>
+    </cycle>
+</CanBgiConfig>
