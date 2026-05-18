@@ -81,6 +81,8 @@ pycan backends. After installation, start it from the command line:
 pcbm
 ```
 
+![pyCAN BusMonitor](screenshot.png)
+
 Features:
 - Backend selection: TLV-UDP, ASCII-TCP, ASCII-UDP
 - IP address and CAN port configuration (1–4)
