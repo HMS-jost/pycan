@@ -38,6 +38,7 @@ can.close()
 ## Layout
 
 - `src/pycan/` - Package source code and backend implementations.
+- `demos/` - Example scripts demonstrating pycan usage.
 - `tests/` - Unit tests and the manual hardware integration suite.
 - `docs/` - User documentation and chat handoff notes.
 - `pyproject.toml` - Build and packaging metadata.
@@ -48,23 +49,23 @@ can.close()
 - `pycan.AsciiCan` - CAN@net ASCII backend for NT/TCP and Basic/UDP.
 - `pycan.Virtual` - In-memory virtual backend for local tests.
 
-## Demo
+## Demos
 
-The package installs a `pycan-demo` console script:
-
-```powershell
-pycan-demo --backend tlv-udp --address 10.41.18.123 --bitrate 500
-pycan-demo --backend ascii-tcp --address 10.41.18.10 --bitrate 500
-pycan-demo --backend ascii-udp --address 10.41.18.11 --bitrate 500
-pycan-demo --backend ascii-tcp --address 10.41.18.20 --bitrate 500 --fd
-pycan-demo --backend virtual --device vcan0
-```
-
-You can also run the demo module directly:
+Example scripts are in the `demos/` folder:
 
 ```powershell
-python -m pycan.demo --backend virtual --device vcan0
+# Interactive send/receive terminal (all backends)
+python demos/interactive.py --backend ascii-tcp --address 10.41.18.10 --bitrate 500
+python demos/interactive.py --backend virtual --device vcan0
+
+# Simple CAN@net NT send & receive (60s)
+python demos/nt_send_receive.py --address 10.41.18.10
 ```
+
+Available demos:
+
+- `demos/interactive.py` — Interactive terminal: send standard/extended/FD messages, load test, live receive.
+- `demos/nt_send_receive.py` — Minimal CAN@net NT example: send 4 messages, print status and received frames for 60s.
 
 ## Documentation
 

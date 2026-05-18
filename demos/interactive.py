@@ -39,8 +39,8 @@ else:
     def _getch() -> bytes:
         return sys.stdin.read(1).encode()
 
-from .ascii_can import ASCII_PORT, AsciiCan
-from .can_api import (
+from pycan.ascii_can import ASCII_PORT, AsciiCan
+from pycan.can_api import (
     CanApi,
     CanApiError,
     CanFilter,
@@ -54,8 +54,8 @@ from .can_api import (
     OpenConfig,
     Transport,
 )
-from .canudp import CanUdp
-from .virtual import Virtual
+from pycan.canudp import CanUdp
+from pycan.virtual import Virtual
 
 DEFAULT_TLV_ADDRESS = "10.41.18.123"
 DEFAULT_TLV_PORT = 19236
