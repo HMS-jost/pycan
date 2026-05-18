@@ -68,7 +68,7 @@ EXT_DATA = b"EXT!"
 FD_ID = 0x200
 FD_DATA = bytes(range(64))
 LOAD_ID = 0x123
-DEFAULT_LOAD_COUNT = 100000
+DEFAULT_LOAD_COUNT = 1000
 
 
 def parse_args() -> argparse.Namespace:
