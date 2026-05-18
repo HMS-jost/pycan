@@ -85,7 +85,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--device", default="vcan0", help="Virtual device id")
     parser.add_argument("--bitrate", type=int, default=500, help="Arbitration bitrate in kbit/s")
     parser.add_argument("--data-bitrate", type=int, default=2000, help="CAN FD data bitrate in kbit/s")
-    parser.add_argument("--classic", action="store_true", help="Use Classic CAN instead of CAN FD")
+    parser.add_argument("--fd", action="store_true", help="Enable CAN FD mode (default is Classic CAN)")
     parser.add_argument("--load-count", type=int, default=DEFAULT_LOAD_COUNT, help="Messages sent by the load test")
     parser.add_argument("--open-timeout", type=float, default=3.0, help="TLV UDP open timeout in seconds")
     return parser.parse_args()
@@ -129,10 +129,10 @@ def open_backend(can: CanApi, config: OpenConfig, args: argparse.Namespace) -> D
 
 def controller_config(args: argparse.Namespace) -> ControllerConfig:
     return ControllerConfig(
-        can_fd=not args.classic,
-        bitrate_switch=not args.classic,
+        can_fd=args.fd,
+        bitrate_switch=args.fd,
         arbitration=CanTiming(bitrate_kbit=args.bitrate),
-        data=CanTiming(bitrate_kbit=args.data_bitrate if not args.classic else 0),
+        data=CanTiming(bitrate_kbit=args.data_bitrate if args.fd else 0),
     )
 
 

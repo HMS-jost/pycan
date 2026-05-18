@@ -15,7 +15,7 @@ From a local checkout:
 python -m pip install .
 ```
 
-For development:
+For development (editable install — code changes take effect immediately):
 
 ```powershell
 python -m pip install -e .
@@ -56,6 +56,7 @@ The package installs a `pycan-demo` console script:
 pycan-demo --backend tlv-udp --address 10.41.18.123 --bitrate 500
 pycan-demo --backend ascii-tcp --address 10.41.18.10 --bitrate 500
 pycan-demo --backend ascii-udp --address 10.41.18.11 --bitrate 500
+pycan-demo --backend ascii-tcp --address 10.41.18.20 --bitrate 500 --fd
 pycan-demo --backend virtual --device vcan0
 ```
 
