@@ -31,6 +31,8 @@ dependencies = []
 
 [project.scripts]
 pycan-demo = "pycan.demo:main"
+
+[project.gui-scripts]
 pcbm = "busmonitor.busmonitor:main"
 
 [tool.setuptools]

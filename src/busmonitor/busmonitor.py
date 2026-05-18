@@ -5,7 +5,7 @@
 """
 CAN BusMonitor — migrated from simplyCAN to the pycan generic API.
 
-Supports backends: TLV-UDP, ASCII-TCP, ASCII-UDP, Virtual.
+Supports backends: TLV-UDP, ASCII-TCP, ASCII-UDP.
 """
 
 import tempfile
@@ -37,7 +37,6 @@ try:
     )
     from pycan.canudp import CanUdp
     from pycan.ascii_can import AsciiCan
-    from pycan.virtual import Virtual
 except ImportError:
     # Allow running from source tree without install
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "pycan"))
@@ -57,7 +56,6 @@ except ImportError:
     )
     from canudp import CanUdp
     from ascii_can import AsciiCan
-    from virtual import Virtual
 
 monitorGUI.kToolVersion = "2.0.0"
 monitorGUI.kABOUT = """
@@ -73,12 +71,11 @@ All rights reserved.""" % monitorGUI.kToolVersion
 kTitle = "pyCAN BusMonitor"
 kSETTINGSFILE = "canmonitor_settings.json"
 
-BACKENDS = ("tlv-udp", "ascii-tcp", "ascii-udp", "virtual")
+BACKENDS = ("tlv-udp", "ascii-tcp", "ascii-udp")
 DEFAULT_PORTS = {
     "tlv-udp": 19236,
     "ascii-tcp": 19228,
     "ascii-udp": 19228,
-    "virtual": 0,
 }
 CAN_PORT = 1
 
@@ -456,7 +453,7 @@ class CanMonitor(monitorGUI.monitorGUI):
         if not backend:
             self.write_output("Error: Select a backend type")
             return
-        if backend != "virtual" and not address:
+        if not address:
             self.write_output("Error: Enter an IP address")
             return
 
@@ -472,9 +469,6 @@ class CanMonitor(monitorGUI.monitorGUI):
             elif backend == "ascii-udp":
                 self.api = AsciiCan(host=address, port=port, transport=Transport.UDP, device_family="basic")
                 self.api.open(OpenConfig(transport=Transport.UDP, address=address, port=port, options={"device_family": "basic"}))
-            elif backend == "virtual":
-                self.api = Virtual()
-                self.api.open(OpenConfig(transport=Transport.VIRTUAL, address="vcan0"))
             else:
                 self.write_output(f"Unknown backend: {backend}")
                 return
@@ -490,7 +484,7 @@ class CanMonitor(monitorGUI.monitorGUI):
 
         self.devConnected = True
         self.lblProductStringTextVar.set(f"{backend}")
-        self.lblSerialNumberTextVar.set(address if backend != "virtual" else "vcan0")
+        self.lblSerialNumberTextVar.set(address)
         self.lblHWVersionTextVar.set(f"CAN port: {self.can_port}")
         self.lblFWVersionTextVar.set("")
         self.RefreshGui()

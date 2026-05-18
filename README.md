@@ -1,7 +1,7 @@
 # pycan
 
 `pycan` is a small transport-independent CAN API for Classic CAN and CAN FD.
-It currently provides backends for CAN@net Basic TLV UDP, CAN@net ASCII UDP,
+It currently provides backends for CAN@net Basic via TLV UDP and ASCII UDP,
 CAN@net NT ASCII TCP, and an in-memory virtual bus.
 
 ## Install
@@ -56,40 +56,10 @@ pycan-demo --backend ascii-udp --address 10.41.18.11 --bitrate 500
 pycan-demo --backend virtual --device vcan0
 ```
 
-The old TLV shortcut still works:
-
-```powershell
-pycan-demo 10.41.18.123
-```
-
 You can also run the demo module directly:
 
 ```powershell
 python -m pycan.demo --backend virtual --device vcan0
-```
-
-## Tests
-
-Run hardware-free unit tests from the repository root:
-
-```powershell
-python -m unittest discover -s tests -p "test_*.py"
-```
-
-The manual hardware integration suite needs three physical interfaces connected
-on CAN1 to the same terminated CAN bus:
-
-```powershell
-python tests/can_matrix_test.py --ascii-tcp 10.41.18.10 --ascii-udp 10.41.18.11 --tlv-udp 10.41.18.12 --tests all
-```
-
-Useful variants:
-
-```powershell
-python tests/can_matrix_test.py --ascii-tcp 10.41.18.10 --ascii-udp 10.41.18.11 --tlv-udp 10.41.18.12 --tests smoke,filters
-python tests/can_matrix_test.py --ascii-tcp 10.41.18.10 --ascii-udp 10.41.18.11 --tlv-udp 10.41.18.12 --tests bitrates --bitrates 125,250,500,1000
-python tests/can_matrix_test.py --ascii-tcp 10.41.18.10 --ascii-udp 10.41.18.11 --tlv-udp 10.41.18.12 --tests types --include-fd --bitrate 500 --data-bitrate 2000
-python tests/can_matrix_test.py --ascii-tcp 10.41.18.10 --ascii-udp 10.41.18.11 --tlv-udp 10.41.18.12 --tests burst --burst-count 128
 ```
 
 ## Documentation
@@ -107,7 +77,7 @@ pcbm
 ```
 
 Features:
-- Backend selection: TLV-UDP, ASCII-TCP, ASCII-UDP, Virtual
+- Backend selection: TLV-UDP, ASCII-TCP, ASCII-UDP
 - IP address and CAN port configuration (1–4)
 - Configurable bitrate
 - Live receive display with timestamps, hex data, and ASCII decode
@@ -124,9 +94,9 @@ Transmit syntax:
 Examples:
 
 ```
-100 11 22 33 44              Standard CAN, ID 0x100, 4 bytes
-1ABCDEF0 E 01 02 03          Extended 29-bit ID
-200 B 00 01 02 ... (64 bytes) CAN FD with BRS
+100 11 22 33 44                Standard CAN, ID 0x100, 4 bytes
+1ABCDEF0 E 01 02 03            Extended 29-bit ID
+200 B 00 01 02 ... (64 bytes)   CAN FD with BRS
 ```
 
 ## License

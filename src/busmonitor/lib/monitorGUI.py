@@ -243,7 +243,7 @@ class monitorGUI(object):
         lblBackend.grid(column=0, row=0, sticky=(N, W, E, S))
         # Combobox 'cbCommDevice' (backend type selector)
         self.cbCommDevice = ttk.Combobox(row_1, state="readonly", textvariable=StringVar())
-        self.cbCommDevice['values'] = ('tlv-udp', 'ascii-tcp', 'ascii-udp', 'virtual')
+        self.cbCommDevice['values'] = ('tlv-udp', 'ascii-tcp', 'ascii-udp')
         self.cbCommDevice.grid(column=1, row=0, sticky=(N, W, E, S))
 
         # Label 'lblAddress'
