@@ -347,6 +347,9 @@ class CanApi(ABC):
         The configuration selects Classic CAN or CAN FD, nominal/data bitrate,
         listen-only mode, and accepted frame classes. Valid bitrate ranges are
         tbd.
+
+        Calling init_can() implicitly clears all receive filters for the given
+        port. Add new filters with add_filter() before calling start_can().
         """
 
     @abstractmethod
@@ -355,13 +358,6 @@ class CanApi(ABC):
 
         A message is accepted when (message_id & mask) == value and the
         identifier format matches. Filter capacity is tbd per backend.
-        """
-
-    @abstractmethod
-    def clear_filters(self, port: int) -> None:
-        """Remove all receive filters from a CAN controller.
-
-        The default receive behavior after clearing filters is tbd.
         """
 
     @abstractmethod

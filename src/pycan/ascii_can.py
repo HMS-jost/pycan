@@ -367,7 +367,10 @@ class AsciiCan(CanApi):
         return self._device_info
 
     def init_can(self, port: int, config: ControllerConfig) -> None:
-        """Initialize one CAN controller via ASCII command."""
+        """Initialize one CAN controller via ASCII command.
+
+        Implicitly clears all receive filters for the given port.
+        """
 
         self._require_open()
         self._validate_port(port)
@@ -381,6 +384,8 @@ class AsciiCan(CanApi):
             command = f"CAN {port} INIT mode={mode} baudA={baud_a}"
         self._send_command(command)
         self._expect_ok("init_can")
+        self._send_command(f"CAN {port} FILTER CLEAR")
+        self._expect_ok("init_can/filter_clear")
 
     def add_filter(self, port: int, can_filter: CanFilter) -> None:
         """Add one ASCII receive filter."""
@@ -393,14 +398,6 @@ class AsciiCan(CanApi):
         )
         self._send_command(command)
         self._expect_ok("add_filter")
-
-    def clear_filters(self, port: int) -> None:
-        """Clear all ASCII receive filters for one CAN port."""
-
-        self._require_open()
-        self._validate_port(port)
-        self._send_command(f"CAN {port} FILTER CLEAR")
-        self._expect_ok("clear_filters")
 
     def start_can(self, port: int) -> None:
         """Start one CAN controller."""

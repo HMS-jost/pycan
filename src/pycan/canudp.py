@@ -393,14 +393,6 @@ class CanUdp(CanApi):
         resp = self._send_recv(CMD_FILTER, payload, timeout=timeout)
         self._device_result("add_filter", resp)
 
-    def clear_filters(self, port: int = 1) -> None:
-        """Remove all receive filters.
-
-        The current TLV UDP protocol only clears filters as a side effect of
-        init_can(), so an explicit clear operation is not available.
-        """
-        raise CanApiError("clear_filters(): explicit clear command is not supported by this protocol")
-
     def send(self, port: int, message: CanMessage) -> None:
         """Send a CAN message. No response from device.
 

@@ -75,7 +75,6 @@ class AsciiCanTest(unittest.TestCase):
         can = AsciiCan(_transport=transport)
         can.open(OpenConfig(transport=Transport.TCP, address="10.0.0.1"))
         can.init_can(1, ControllerConfig(can_fd=True))
-        can.clear_filters(1)
         can.add_filter(1, CanFilter(IdentifierFormat.EXTENDED, mask=0, value=0))
         can.start_can(1)
         can.send(1, CanMessage(0x123, b"abc"))

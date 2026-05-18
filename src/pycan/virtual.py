@@ -196,14 +196,6 @@ class Virtual(CanApi):
         self._filters[port].append(can_filter)
         self._set_error(0, "")
 
-    def clear_filters(self, port: int) -> None:
-        """Remove all receive filters from a virtual CAN port."""
-
-        self._require_open()
-        self._validate_port(port)
-        self._filters[port].clear()
-        self._set_error(0, "")
-
     def start_can(self, port: int) -> None:
         """Start one virtual CAN port."""
 

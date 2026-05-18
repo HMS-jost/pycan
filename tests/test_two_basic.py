@@ -64,10 +64,6 @@ def main() -> int:
         except Exception:
             pass
         api.init_can(CAN_PORT, cfg)
-        try:
-            api.clear_filters(CAN_PORT)
-        except Exception:
-            pass
         for f in accept_all:
             api.add_filter(CAN_PORT, f)
         api.start_can(CAN_PORT)

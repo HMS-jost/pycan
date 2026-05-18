@@ -542,10 +542,6 @@ class CanMonitor(monitorGUI.monitorGUI):
             except Exception:
                 pass
             self.api.init_can(self.can_port, cfg)
-            try:
-                self.api.clear_filters(self.can_port)
-            except Exception:
-                pass
             for f in accept_all:
                 self.api.add_filter(self.can_port, f)
             self.api.start_can(self.can_port)

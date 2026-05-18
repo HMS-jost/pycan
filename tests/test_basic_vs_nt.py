@@ -136,10 +136,6 @@ def _configure_all(apis, cfg: ControllerConfig) -> None:
         except Exception:
             pass
         api.init_can(can_port, cfg)
-        try:
-            api.clear_filters(can_port)
-        except Exception:
-            pass
         for f in accept_all:
             api.add_filter(can_port, f)
         api.start_can(can_port)

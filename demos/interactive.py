@@ -42,7 +42,6 @@ else:
 from pycan.ascii_can import ASCII_PORT, AsciiCan
 from pycan.can_api import (
     CanApi,
-    CanApiError,
     CanFilter,
     CanMessage,
     CanStatus,
@@ -144,10 +143,6 @@ def read_status(can: CanApi) -> CanStatus:
 
 def configure_can(can: CanApi, args: argparse.Namespace) -> None:
     can.init_can(CAN_PORT, controller_config(args))
-    try:
-        can.clear_filters(CAN_PORT)
-    except CanApiError:
-        pass
     can.add_filter(CAN_PORT, CanFilter(IdentifierFormat.STANDARD, mask=0, value=0))
     can.add_filter(CAN_PORT, CanFilter(IdentifierFormat.EXTENDED, mask=0, value=0))
     can.start_can(CAN_PORT)

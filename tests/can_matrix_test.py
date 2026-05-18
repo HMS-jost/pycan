@@ -24,7 +24,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from pycan.ascii_can import ASCII_PORT, AsciiCan
 from pycan.can_api import (
     CanApi,
-    CanApiError,
     CanFilter,
     CanMessage,
     CanTiming,
@@ -112,10 +111,6 @@ class CanHardwareSuite:
         except Exception:
             pass
         node.api.init_can(CAN_PORT, config)
-        try:
-            node.api.clear_filters(CAN_PORT)
-        except CanApiError:
-            pass
         for can_filter in filters:
             node.api.add_filter(CAN_PORT, can_filter)
         node.api.start_can(CAN_PORT)

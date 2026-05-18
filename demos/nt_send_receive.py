@@ -49,7 +49,6 @@ def main() -> int:
         ))
 
         # Filter: accept all standard (11-bit) IDs
-        can.clear_filters(CAN_PORT)
         can.add_filter(CAN_PORT, CanFilter(IdentifierFormat.STANDARD, mask=0, value=0))
 
         can.start_can(CAN_PORT)

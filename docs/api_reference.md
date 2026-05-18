@@ -214,7 +214,9 @@ Read identification and capability information from the open device.
 
 ### `init_can(port, config) → None`
 
-Initialize a CAN controller without starting bus traffic.
+Initialize a CAN controller without starting bus traffic. Implicitly clears all
+receive filters for the given port — add new filters with `add_filter()` before
+calling `start_can()`.
 
 - `port`: CAN port number (1-based).
 - `config`: `ControllerConfig` with bitrate, FD mode, filters, etc.
@@ -225,10 +227,6 @@ Add one receive filter to a CAN controller.
 
 - `port`: CAN port number.
 - `can_filter`: `CanFilter` instance.
-
-### `clear_filters(port) → None`
-
-Remove all receive filters from a CAN controller.
 
 ### `start_can(port) → None`
 
