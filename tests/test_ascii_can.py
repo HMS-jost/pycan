@@ -69,7 +69,7 @@ class AsciiCanTest(unittest.TestCase):
     def test_init_filter_start_send_and_status_commands(self):
         transport = FakeTransport([
             b"R V1", b"R V2", b"R CAN CAN CAN CAN",
-            b"R ok", b"R ok", b"R ok", b"R ok",
+            b"R ok", b"R ok", b"R ok",
             b"R CAN 1 ----- 42",
         ])
         can = AsciiCan(_transport=transport)
@@ -81,7 +81,6 @@ class AsciiCanTest(unittest.TestCase):
         status = can.get_status(1)
 
         self.assertIn(b"CAN 1 INIT mode=STD baudA=500 baudD=0 iso=ISO", transport.sent)
-        self.assertIn(b"CAN 1 FILTER CLEAR", transport.sent)
         self.assertIn(b"CAN 1 FILTER ADD type=EXT id=0 mask=0", transport.sent)
         self.assertIn(b"CAN 1 START", transport.sent)
         self.assertIn(b"M 1 CSD 123 61 62 63", transport.sent)
