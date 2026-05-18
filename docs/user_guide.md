@@ -121,7 +121,7 @@ Send one extended frame:
 ```python
 can.send(1, CanMessage(
     0x1234567,
-    b"EXT!",
+    b"\x11\x22\x33\x44\x55\x66\x77\x88",
     id_format=IdentifierFormat.EXTENDED,
 ))
 ```

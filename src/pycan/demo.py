@@ -17,9 +17,27 @@ still selects the TLV UDP backend.
 from __future__ import annotations
 
 import argparse
-import msvcrt
 import sys
 import time
+
+if sys.platform == "win32":
+    import msvcrt
+
+    def _kbhit() -> bool:
+        return msvcrt.kbhit()
+
+    def _getch() -> bytes:
+        return msvcrt.getch()
+else:
+    import select
+    import termios
+    import tty
+
+    def _kbhit() -> bool:
+        return select.select([sys.stdin], [], [], 0)[0] != []
+
+    def _getch() -> bytes:
+        return sys.stdin.read(1).encode()
 
 from .ascii_can import ASCII_PORT, AsciiCan
 from .can_api import (
@@ -186,40 +204,48 @@ def main() -> int:
         next_status = time.monotonic() + 5.0
         print("\nReady. Press 't' STD, 'e' EXT, 'f' CAN-FD, 'l' load, 'q' quit.")
 
-        while True:
-            if msvcrt.kbhit():
-                key = msvcrt.getch().lower()
-                if key == b"q":
-                    break
-                if key == b"t":
-                    tx_count += 1
-                    msg = CanMessage(TEST_ID, TEST_DATA)
-                    print(f"  TX[{tx_count}] {msg}")
-                    can.send(CAN_PORT, msg)
-                elif key == b"e":
-                    tx_count += 1
-                    msg = CanMessage(EXT_ID, EXT_DATA, id_format=IdentifierFormat.EXTENDED)
-                    print(f"  TX[{tx_count}] {msg}")
-                    can.send(CAN_PORT, msg)
-                elif key == b"f":
-                    tx_count += 1
-                    msg = CanMessage(FD_ID, FD_DATA, frame_format=FrameFormat.FD_BRS)
-                    print(f"  TX[{tx_count}] {msg}")
-                    can.send(CAN_PORT, msg)
-                elif key == b"l":
+        if sys.platform != "win32":
+            _old_term = termios.tcgetattr(sys.stdin)
+            tty.setcbreak(sys.stdin.fileno())
+
+        try:
+            while True:
+                if _kbhit():
+                    key = _getch().lower()
+                    if key == b"q":
+                        break
+                    if key == b"t":
+                        tx_count += 1
+                        msg = CanMessage(TEST_ID, TEST_DATA)
+                        print(f"  TX[{tx_count}] {msg}")
+                        can.send(CAN_PORT, msg)
+                    elif key == b"e":
+                        tx_count += 1
+                        msg = CanMessage(EXT_ID, EXT_DATA, id_format=IdentifierFormat.EXTENDED)
+                        print(f"  TX[{tx_count}] {msg}")
+                        can.send(CAN_PORT, msg)
+                    elif key == b"f":
+                        tx_count += 1
+                        msg = CanMessage(FD_ID, FD_DATA, frame_format=FrameFormat.FD_BRS)
+                        print(f"  TX[{tx_count}] {msg}")
+                        can.send(CAN_PORT, msg)
+                    elif key == b"l":
+                        try:
+                            tx_count += run_load_test(can, args.load_count)
+                        except TimeoutError:
+                            print("  LOAD TEST aborted: timeout waiting for TX space")
+
+                rx_count = drain_receive(can, rx_count)
+
+                if time.monotonic() >= next_status:
+                    next_status = time.monotonic() + 5.0
                     try:
-                        tx_count += run_load_test(can, args.load_count)
-                    except TimeoutError:
-                        print("  LOAD TEST aborted: timeout waiting for TX space")
-
-            rx_count = drain_receive(can, rx_count)
-
-            if time.monotonic() >= next_status:
-                next_status = time.monotonic() + 5.0
-                try:
-                    print_status(can, "STATUS")
-                except Exception as exc:
-                    print(f"  [STATUS] {exc}")
+                        print_status(can, "STATUS")
+                    except Exception as exc:
+                        print(f"  [STATUS] {exc}")
+        finally:
+            if sys.platform != "win32":
+                termios.tcsetattr(sys.stdin, termios.TCSADRAIN, _old_term)
 
         print(f"\n--- Summary: {tx_count} sent, {rx_count} received ---")
         return 0

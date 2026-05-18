@@ -4,6 +4,9 @@
 It currently provides backends for CAN@net Basic via TLV UDP and ASCII UDP,
 CAN@net NT ASCII TCP, and an in-memory virtual bus.
 
+Supported platforms: **Windows** and **Linux** (any platform with Python 3.12+
+and standard sockets).
+
 ## Install
 
 From a local checkout:
@@ -64,8 +67,9 @@ python -m pycan.demo --backend virtual --device vcan0
 
 ## Documentation
 
-See `docs/user_guide.md` for API concepts, initialization snippets,
-send/receive examples, and backend-specific notes.
+- [User Guide](docs/user_guide.md) — API concepts, initialization snippets, send/receive examples, and backend-specific notes.
+- [API Reference](docs/api_reference.md) — Complete reference of all classes, enums, dataclasses, and methods.
+- [Backend Overview](docs/backends.md) — Supported devices, capabilities, bitrates, timestamps, and register configuration.
 
 ## BusMonitor
 
