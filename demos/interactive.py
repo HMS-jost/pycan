@@ -76,7 +76,7 @@ EXT_DATA = b"EXT!"
 FD_ID = 0x200
 FD_DATA = bytes(range(64))
 LOAD_ID = 0x123
-DEFAULT_LOAD_COUNT = 10000
+DEFAULT_LOAD_COUNT = 1000
 
 
 def parse_args() -> argparse.Namespace:
@@ -173,7 +173,6 @@ def configure_can(can: CanApi, can_port: int, args: argparse.Namespace) -> None:
 def print_status(can: CanApi, can_port: int, prefix: str = "Status") -> None:
     sts = read_status(can, can_port)
     print(f"  [{prefix}] {sts.status_text}  tx_free={sts.tx_free}  err={sts.error_code}")
-    #pass
 
 
 def drain_receive(can: CanApi, can_port: int, rx_count: int) -> int:

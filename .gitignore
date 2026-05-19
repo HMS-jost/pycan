@@ -217,5 +217,5 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-
-chat_migration_prompt.md
+my_local_readme.txt
+test.bat
