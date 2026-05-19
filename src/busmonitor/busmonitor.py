@@ -156,6 +156,7 @@ class CanMonitor(monitorGUI.monitorGUI):
     # -----------------------------------------------------------------
     def onStart(self):
         data = self._get_stored_data()
+        self.cbCommDevice['values'] = BACKENDS
         self.cbBaudrate.set(data.get("baudrate", "500"))
         self.cbCommDevice.set(data.get("backend", "tlv-udp"))
         self.entAddress.delete(0, tk.END)
