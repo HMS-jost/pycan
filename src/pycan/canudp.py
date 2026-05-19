@@ -358,10 +358,13 @@ class CanUdp(CanApi):
                  timeout: float = 2.0) -> None:
         """Initialize CAN controller. Clears all receive filters.
 
+        Sends STOP first to ensure the controller can be re-initialized.
+
         Args:
             port:   CAN channel (currently only 1 supported).
             config: Common CAN controller configuration.
         """
+        self.stop_can(port, timeout=timeout)
         config = config or ControllerConfig()
         mode = self._config_to_mode(config)
         baud_a = config.arbitration.bitrate_kbit
