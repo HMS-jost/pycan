@@ -119,6 +119,8 @@ Examples:
   per port) for reliable operation across all IXXAT hardware variants.
 - Matrix integration test (`can_matrix_test.py`) extended with optional
   `--vci` node.
+- BusMonitor: added VCI backend support; CAN ID and data byte input is now
+  always interpreted as hexadecimal (no `0x` prefix needed).
 - Documentation updated: backend overview, user guide, API reference.
 
 ### v1.0.0 (2026-05-13)
