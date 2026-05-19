@@ -366,18 +366,32 @@ class AsciiCan(CanApi):
         self._require_open()
         return self._device_info
 
+    def _port_requires_fd_init(self, port: int) -> bool:
+        """Return True if the port has an FD controller that needs baudD/iso params."""
+        if self._device_family == "nt" and port >= 3:
+            return True
+        if self._device_family == "basic":
+            return True
+        return False
+
     def init_can(self, port: int, config: ControllerConfig) -> None:
         """Initialize one CAN controller via ASCII command.
 
         The device implicitly clears all receive filters on INIT.
+        Sends STOP first in case the controller is already running.
         """
 
         self._require_open()
         self._validate_port(port)
+
+        # Stop the controller first — the firmware rejects INIT on a running port.
+        self._send_command(f"CAN {port} STOP")
+        self._expect_ok("init_can(stop)")
+
         mode = "LISTEN" if config.listen_only else "STD"
         baud_a = config.arbitration.bitrate_kbit
         baud_d = config.data.bitrate_kbit if config.can_fd else 0
-        if config.can_fd:
+        if config.can_fd or self._port_requires_fd_init(port):
             iso = "ISO" if config.iso_mode else "nonISO"
             command = f"CAN {port} INIT mode={mode} baudA={baud_a} baudD={baud_d} iso={iso}"
         else:

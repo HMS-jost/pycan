@@ -69,7 +69,7 @@ class AsciiCanTest(unittest.TestCase):
     def test_init_filter_start_send_and_status_commands(self):
         transport = FakeTransport([
             b"R V1", b"R V2", b"R CAN CAN CAN CAN",
-            b"R ok", b"R ok", b"R ok",
+            b"R ok", b"R ok", b"R ok", b"R ok",
             b"R CAN 1 ----- 42",
         ])
         can = AsciiCan(_transport=transport)
