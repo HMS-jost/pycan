@@ -3,11 +3,12 @@
 
 """Manual hardware integration suite for the common CAN API.
 
-Connect CAN1 of three physical interfaces to the same terminated CAN bus, then
-run this script from the api directory. The suite opens one ASCII TCP endpoint,
-one ASCII UDP endpoint, and one TLV UDP endpoint. It can then exercise bitrate
-configuration, frame formats, filters, single send/receive, and burst sending
-across all backend combinations.
+Connect the CAN-FD-capable port of each interface to the same terminated CAN
+bus, then run this script.  The CAN@net NT 420 uses CAN3 (the only FD-capable
+port); CAN@net Basic and TLV-UDP devices use CAN1.  The suite opens one ASCII
+TCP endpoint, one ASCII UDP endpoint, and one TLV UDP endpoint and exercises
+bitrate configuration, frame formats, filters, single send/receive, and burst
+sending across all backend combinations.
 """
 
 from __future__ import annotations
@@ -37,13 +38,16 @@ from pycan.can_api import (
 from pycan.canudp import CanUdp
 
 TLV_PORT = 19236
-CAN_PORT = 1
+# CAN@net NT 420: only CAN3 supports CAN FD
+NT_CAN_PORT = 3
+BASIC_CAN_PORT = 1
 
 
 @dataclass(slots=True)
 class Node:
     name: str
     api: CanApi
+    can_port: int = 1
 
 
 @dataclass(slots=True)
@@ -64,21 +68,21 @@ def _make_ascii_tcp(endpoint: str) -> Node:
     host, port = _split_endpoint(endpoint, ASCII_PORT)
     api = AsciiCan(host=host, port=port, transport=Transport.TCP, device_family="nt")
     api.open(OpenConfig(transport=Transport.TCP, address=host, port=port, options={"device_family": "nt"}))
-    return Node("ascii-tcp", api)
+    return Node("ascii-tcp", api, can_port=NT_CAN_PORT)
 
 
 def _make_ascii_udp(endpoint: str) -> Node:
     host, port = _split_endpoint(endpoint, ASCII_PORT)
     api = AsciiCan(host=host, port=port, transport=Transport.UDP, device_family="basic")
     api.open(OpenConfig(transport=Transport.UDP, address=host, port=port, options={"device_family": "basic"}))
-    return Node("ascii-udp", api)
+    return Node("ascii-udp", api, can_port=BASIC_CAN_PORT)
 
 
 def _make_tlv_udp(endpoint: str) -> Node:
     host, port = _split_endpoint(endpoint, TLV_PORT)
     api = CanUdp(host=host, port=port)
     api.open(OpenConfig(transport=Transport.UDP, address=host, port=port))
-    return Node("tlv-udp", api)
+    return Node("tlv-udp", api, can_port=BASIC_CAN_PORT)
 
 
 class CanHardwareSuite:
@@ -89,7 +93,7 @@ class CanHardwareSuite:
     def close(self) -> None:
         for node in self.nodes:
             try:
-                node.api.stop_can(CAN_PORT)
+                node.api.stop_can(node.can_port)
             except Exception:
                 pass
             node.api.close()
@@ -105,15 +109,15 @@ class CanHardwareSuite:
         self.drain_all()
 
     def _configure_node(self, node: Node, config: ControllerConfig, filters: list[CanFilter]) -> None:
-        print(f"  configuring {node.name}")
+        print(f"  configuring {node.name} (CAN{node.can_port})")
         try:
-            node.api.stop_can(CAN_PORT)
+            node.api.stop_can(node.can_port)
         except Exception:
             pass
-        node.api.init_can(CAN_PORT, config)
+        node.api.init_can(node.can_port, config)
         for can_filter in filters:
-            node.api.add_filter(CAN_PORT, can_filter)
-        node.api.start_can(CAN_PORT)
+            node.api.add_filter(node.can_port, can_filter)
+        node.api.start_can(node.can_port)
 
     @staticmethod
     def _accept_all_filters() -> list[CanFilter]:
@@ -124,7 +128,7 @@ class CanHardwareSuite:
 
     def drain_all(self) -> None:
         for node in self.nodes:
-            while node.api.receive(CAN_PORT, timeout=0) is not None:
+            while node.api.receive(node.can_port, timeout=0) is not None:
                 pass
 
     def receivers_for(self, sender: Node) -> list[Node]:
@@ -174,8 +178,8 @@ class CanHardwareSuite:
             allowed = CanMessage(0x321, b"allowed")
             self.drain_all()
             print(f"  {sender.name} sends blocked 0x{blocked.can_id:X} and allowed 0x{allowed.can_id:X}")
-            sender.api.send(CAN_PORT, blocked)
-            sender.api.send(CAN_PORT, allowed)
+            sender.api.send(sender.can_port, blocked)
+            sender.api.send(sender.can_port, allowed)
             for receiver in self.receivers_for(sender):
                 self.expect_allowed_without_forbidden(receiver, allowed, blocked.can_id)
 
@@ -189,7 +193,7 @@ class CanHardwareSuite:
             ]
             self.drain_all()
             print(f"  {sender.name} sends burst of {count} frames")
-            sent = sender.api.send_many(CAN_PORT, messages, overall_timeout=max(self.timeout, count * 0.02))
+            sent = sender.api.send_many(sender.can_port, messages, overall_timeout=max(self.timeout, count * 0.02))
             if sent != count:
                 raise AssertionError(f"{sender.name} sent {sent}/{count} burst frames")
             for receiver in self.receivers_for(sender):
@@ -224,7 +228,7 @@ class CanHardwareSuite:
     def send_and_expect(self, sender: Node, message: CanMessage) -> None:
         self.drain_all()
         print(f"  {sender.name} sends {self.describe(message)}")
-        sender.api.send_many(CAN_PORT, [message], overall_timeout=self.timeout)
+        sender.api.send_many(sender.can_port, [message], overall_timeout=self.timeout)
         for receiver in self.receivers_for(sender):
             received = self.receive_expected(receiver, message)
             print(f"    {receiver.name} received timestamp_us={received.timestamp_us}")
@@ -232,7 +236,7 @@ class CanHardwareSuite:
     def receive_expected(self, receiver: Node, expected: CanMessage) -> CanMessage:
         deadline = time.monotonic() + self.timeout
         while time.monotonic() < deadline:
-            message = receiver.api.receive(CAN_PORT, timeout=min(0.05, max(0.0, deadline - time.monotonic())))
+            message = receiver.api.receive(receiver.can_port, timeout=min(0.05, max(0.0, deadline - time.monotonic())))
             if message is None:
                 continue
             if self.message_matches(message, expected):
@@ -246,7 +250,7 @@ class CanHardwareSuite:
         deadline = time.monotonic() + self.timeout
         saw_allowed = False
         while time.monotonic() < deadline:
-            message = receiver.api.receive(CAN_PORT, timeout=min(0.05, max(0.0, deadline - time.monotonic())))
+            message = receiver.api.receive(receiver.can_port, timeout=min(0.05, max(0.0, deadline - time.monotonic())))
             if message is None:
                 continue
             if message.can_id == forbidden_id:
@@ -262,7 +266,7 @@ class CanHardwareSuite:
         received_ids: set[int] = set()
         deadline = time.monotonic() + max(self.timeout, len(expected_messages) * 0.02)
         while time.monotonic() < deadline and len(received_ids) < len(expected_by_id):
-            message = receiver.api.receive(CAN_PORT, timeout=min(0.05, max(0.0, deadline - time.monotonic())))
+            message = receiver.api.receive(receiver.can_port, timeout=min(0.05, max(0.0, deadline - time.monotonic())))
             if message is None:
                 continue
             expected = expected_by_id.get(message.can_id)
