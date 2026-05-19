@@ -419,7 +419,11 @@ class CanApi(ABC):
             if deadline is not None and time.monotonic() >= deadline:
                 raise TimeoutError("send_many(): timeout waiting for TX space")
             self.process_cycle()
-            tx_free = self.get_status(port).tx_free
+            try:
+                tx_free = self.get_status(port).tx_free
+            except Exception:
+                # Status query failed (e.g. device busy) — send one at a time.
+                tx_free = 1
             chunk = min(tx_free, total - sent)
             if chunk <= 0:
                 time.sleep(poll_interval)
