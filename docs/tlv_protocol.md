@@ -299,6 +299,12 @@ PC                              Gerät
 
 1. **UDP ist verbindungslos** — es gibt keine Session im klassischen Sinn.
    Das Open-Kommando registriert lediglich IP:Port beim Gerät.
+   Das Gerät speichert intern den letzten Empfangszeitpunkt eines beliebigen
+   Kommandos. Kommt innerhalb von **5 Sekunden** kein Kommando, gilt der
+   Client als getrennt und ein anderer Client kann sich per Open registrieren.
+   **Das Status-Kommando (Cmd 1) dient daher gleichzeitig als
+   Keepalive/Ping** — es sollte zyklisch (z. B. alle 1–2 Sekunden) gesendet
+   werden, um die Verbindung aufrechtzuerhalten.
 
 2. **Empfang während Kommandos** — Zwischen dem Senden eines Kommandos und
    dem Empfang der Antwort können CAN-Recv-Frames (Cmd 6) eintreffen. Diese
