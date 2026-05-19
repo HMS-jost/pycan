@@ -103,7 +103,7 @@ Transmit syntax:
 Examples:
 
 ```
-100 11 22 33 44                Standard CAN, ID 0x100, 4 bytes
+100 11 22 33 AA                Standard CAN, ID 0x100, 4 bytes
 1ABCDEF0 E 01 02 03            Extended 29-bit ID
 200 B 00 01 02 ... (64 bytes)   CAN FD with BRS
 ```
