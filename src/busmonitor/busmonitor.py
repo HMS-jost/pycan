@@ -527,14 +527,14 @@ class CanMonitor(monitorGUI.monitorGUI):
     # -----------------------------------------------------------------
     def onCanStart(self):
         baudrate_str = self.cbBaudrate.get()
-        bitrate = self.str2int(baudrate_str)
+        bitrate = int(baudrate_str) if baudrate_str.isdigit() else 0
         if bitrate <= 0:
             self.write_output("Invalid bitrate")
             return
 
         # FD data bitrate
         data_baudrate_str = self.cbDataBaudrate.get()
-        data_bitrate = self.str2int(data_baudrate_str) if data_baudrate_str not in ('', '---') else 0
+        data_bitrate = int(data_baudrate_str) if data_baudrate_str.isdigit() else 0
 
         if data_bitrate > 0:
             cfg = ControllerConfig(
@@ -662,18 +662,14 @@ class CanMonitor(monitorGUI.monitorGUI):
     # -----------------------------------------------------------------
     def ishexdec(self, s):
         try:
-            if "0x" not in s:
-                s = s.lstrip("0") or "0"
-            int(s.strip(), base=0)
+            int(s.strip(), 16)
             return True
         except Exception:
             return False
 
     def str2int(self, s):
         try:
-            if "0x" not in s:
-                s = s.lstrip("0") or "0"
-            return int(s.strip(), base=0)
+            return int(s.strip(), 16)
         except Exception:
             return 0
 
