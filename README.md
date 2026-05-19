@@ -2,7 +2,7 @@
 
 `pycan` is a small transport-independent CAN API for Classic CAN and CAN FD.
 It currently provides backends for CAN@net Basic via TLV UDP and ASCII UDP,
-CAN@net NT ASCII TCP, and an in-memory virtual bus.
+CAN@net NT ASCII TCP, IXXAT VCI (Windows), and an in-memory virtual bus.
 
 Supported platforms: **Windows** and **Linux** (any platform with Python 3.12+
 and standard sockets).
@@ -47,6 +47,7 @@ can.close()
 
 - `pycan.CanUdp` - CAN@net Basic TLV UDP backend.
 - `pycan.AsciiCan` - CAN@net ASCII backend for NT/TCP and Basic/UDP.
+- `pycan.VciCan` - IXXAT VCI V4 backend (Windows, native DLL).
 - `pycan.Virtual` - In-memory virtual backend for local tests.
 
 ## Demos
@@ -106,6 +107,28 @@ Examples:
 1ABCDEF0 E 01 02 03            Extended 29-bit ID
 200 B 00 01 02 ... (64 bytes)   CAN FD with BRS
 ```
+
+## History
+
+### v1.1.0 (2026-05-19)
+
+- **New backend: IXXAT VCI** — `VciCan` wraps the VCI V4 native DLL
+  (`vcinpl2.dll`) via ctypes. Supports Classic CAN and CAN FD on any IXXAT
+  interface (USB, Ethernet, PCIe). Windows only.
+- VCI receive filtering implemented in software (up to 5 mask/value filters
+  per port) for reliable operation across all IXXAT hardware variants.
+- Matrix integration test (`can_matrix_test.py`) extended with optional
+  `--vci` node.
+- Documentation updated: backend overview, user guide, API reference.
+
+### v1.0.0 (2026-05-13)
+
+- Initial release with `AsciiCan` (TCP/UDP), `CanUdp` (TLV-UDP), and
+  `Virtual` backends.
+- Common `CanApi` interface: open, init, filter, start, send, receive, close.
+- Classic CAN and CAN FD support.
+- BusMonitor GUI (`pcbm`).
+- Hardware integration test suite (`can_matrix_test.py`).
 
 ## License
 

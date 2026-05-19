@@ -5,10 +5,10 @@
 
 Connect the CAN-FD-capable port of each interface to the same terminated CAN
 bus, then run this script.  The CAN@net NT 420 uses CAN3 (the only FD-capable
-port); CAN@net Basic and TLV-UDP devices use CAN1.  The suite opens one ASCII
-TCP endpoint, one ASCII UDP endpoint, and one TLV UDP endpoint and exercises
-bitrate configuration, frame formats, filters, single send/receive, and burst
-sending across all backend combinations.
+port); CAN@net Basic and TLV-UDP devices use CAN1; VCI interfaces use the
+port given via --vci-port (default 1).  The suite opens up to four endpoints
+and exercises bitrate configuration, frame formats, filters, single
+send/receive, and burst sending across all backend combinations.
 """
 
 from __future__ import annotations
@@ -36,6 +36,7 @@ from pycan.can_api import (
     Transport,
 )
 from pycan.canudp import CanUdp
+from pycan.vci_can import VciCan
 
 TLV_PORT = 19236
 # CAN@net NT 420: only CAN3 supports CAN FD
@@ -83,6 +84,12 @@ def _make_tlv_udp(endpoint: str) -> Node:
     api = CanUdp(host=host, port=port)
     api.open(OpenConfig(transport=Transport.UDP, address=host, port=port))
     return Node("tlv-udp", api, can_port=BASIC_CAN_PORT)
+
+
+def _make_vci(serial_num: str, can_port: int) -> Node:
+    api = VciCan()
+    api.open(OpenConfig(transport=Transport.VCI, device_id=serial_num))
+    return Node("vci", api, can_port=can_port)
 
 
 class CanHardwareSuite:
@@ -332,10 +339,12 @@ def _run(name: str, scenario: Callable[[], None]) -> ScenarioResult:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Hardware integration suite for ASCII TCP, ASCII UDP, and TLV UDP CAN APIs.")
+    parser = argparse.ArgumentParser(description="Hardware integration suite for ASCII TCP, ASCII UDP, TLV UDP, and VCI CAN APIs.")
     parser.add_argument("--ascii-tcp", required=True, metavar="HOST[:PORT]", help="CAN@net NT ASCII TCP endpoint")
     parser.add_argument("--ascii-udp", required=True, metavar="HOST[:PORT]", help="CAN@net Basic ASCII UDP endpoint")
     parser.add_argument("--tlv-udp", required=True, metavar="HOST[:PORT]", help="CAN@net Basic TLV UDP endpoint")
+    parser.add_argument("--vci", metavar="SERIAL", default=None, help="IXXAT VCI serial number (e.g. HW426714)")
+    parser.add_argument("--vci-port", type=int, default=1, help="CAN port on the VCI interface (default: 1)")
     parser.add_argument("--bitrate", type=int, default=500, help="Default arbitration bitrate in kbit/s")
     parser.add_argument("--bitrates", default="500", help="Comma-separated classic CAN bitrates for the bitrate scenario")
     parser.add_argument("--data-bitrate", type=int, default=2000, help="CAN FD data bitrate in kbit/s")
@@ -361,6 +370,8 @@ def main() -> int:
             _make_ascii_udp(args.ascii_udp),
             _make_tlv_udp(args.tlv_udp),
         ]
+        if args.vci:
+            nodes.append(_make_vci(args.vci, args.vci_port))
         suite = CanHardwareSuite(nodes, args.timeout)
         scenarios: list[tuple[str, Callable[[], None]]] = []
         if "smoke" in requested:

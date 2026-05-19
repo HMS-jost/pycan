@@ -3,6 +3,8 @@
 
 """Transport-independent CAN API and CAN@net backend implementations."""
 
+__version__ = "1.1.0"
+
 from .can_api import (
 	BusState,
 	CanApi,
@@ -24,7 +26,15 @@ from .ascii_can import AsciiCan, CanAscii
 from .canudp import CanUdp
 from .virtual import CanVirtual, Virtual
 
+import sys as _sys
+if _sys.platform == "win32":
+	try:
+		from .vci_can import VciCan, CanVci
+	except ImportError:
+		pass
+
 __all__ = [
+	"__version__",
 	"AsciiCan",
 	"BusState",
 	"CanApi",
@@ -35,6 +45,7 @@ __all__ = [
 	"CanStatus",
 	"CanTiming",
 	"CanUdp",
+	"CanVci",
 	"CanVirtual",
 	"ControllerConfig",
 	"DeviceInfo",
@@ -44,5 +55,6 @@ __all__ = [
 	"OpenConfig",
 	"ReceiveCallback",
 	"Transport",
+	"VciCan",
 	"Virtual",
 ]

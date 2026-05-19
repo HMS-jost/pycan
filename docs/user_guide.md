@@ -79,6 +79,19 @@ can = Virtual()
 can.open(OpenConfig(transport=Transport.VIRTUAL, device_id="vcan0"))
 ```
 
+### IXXAT VCI Backend (Windows)
+
+```python
+from pycan import VciCan, OpenConfig, Transport
+
+can = VciCan()
+can.open(OpenConfig(transport=Transport.VCI, device_id="HW426714"))
+```
+
+The `device_id` is the IXXAT serial number printed on the interface (e.g.
+`HW426714`).  CAN port count and CAN FD capability depend on the connected
+hardware.
+
 ## CAN Initialization
 
 Classic CAN at 500 kbit/s:

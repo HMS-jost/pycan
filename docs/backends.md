@@ -7,17 +7,18 @@ protocol-level constraints.
 
 ## Backend Summary
 
-| Property              | TLV-UDP (CAN@net Basic)         | ASCII-TCP (CAN@net NT)          | ASCII-UDP (CAN@net Basic)       |
-|-----------------------|---------------------------------|---------------------------------|---------------------------------|
-| **Status**            | Preliminary                     | Stable                          | Stable                          |
-| **Python class**      | `CanUdp`                        | `AsciiCan`                      | `AsciiCan`                      |
-| **Transport**         | UDP                             | TCP                             | UDP                             |
-| **Default port**      | 19236                           | 19228                           | 19228                           |
-| **Device family**     | `basic`                         | `nt`                            | `basic`                         |
-| **CAN ports**         | 1                               | 1–4 (device dependent)          | 1                               |
-| **CAN FD**            | Yes (port 1)                    | Device dependent (see below)    | Yes (port 1)                    |
-| **Timestamps**        | Hardware (µs resolution)        | Client-side (`time.time()`)     | Client-side (`time.time()`)     |
-| **Burst capability**  | `send_many()` with TX queue     | `send_many()` with TX queue     | `send_many()` with TX queue     |
+| Property              | TLV-UDP (CAN@net Basic)         | ASCII-TCP (CAN@net NT)          | ASCII-UDP (CAN@net Basic)       | VCI (IXXAT)                     |
+|-----------------------|---------------------------------|---------------------------------|---------------------------------|---------------------------------|
+| **Status**            | Preliminary                     | Stable                          | Stable                          | Stable                          |
+| **Python class**      | `CanUdp`                        | `AsciiCan`                      | `AsciiCan`                      | `VciCan`                        |
+| **Transport**         | UDP                             | TCP                             | UDP                             | Native DLL (vcinpl2.dll)        |
+| **Default port**      | 19236                           | 19228                           | 19228                           | —                               |
+| **Device family**     | `basic`                         | `nt`                            | `basic`                         | —                               |
+| **CAN ports**         | 1                               | 1–4 (device dependent)          | 1                               | 1–4 (interface dependent)       |
+| **CAN FD**            | Yes (port 1)                    | Device dependent (see below)    | Yes (port 1)                    | Interface dependent             |
+| **Timestamps**        | Hardware (µs resolution)        | Client-side (`time.time()`)     | Client-side (`time.time()`)     | Hardware (VCI timer ticks)      |
+| **Burst capability**  | `send_many()` with TX queue     | `send_many()` with TX queue     | `send_many()` with TX queue     | `send_many()` direct send       |
+| **Platform**          | Windows, Linux                  | Windows, Linux                  | Windows, Linux                  | Windows only                    |
 
 ---
 
@@ -79,6 +80,48 @@ Additionally: User-defined via register values.
 
 ---
 
+## IXXAT VCI (Windows)
+
+- **Hardware:** Any IXXAT CAN interface supported by VCI V4 (USB, Ethernet, PCIe)
+- **DLL:** `vcinpl2.dll` (installed with the IXXAT VCI V4 driver package)
+- **CAN FD:** Depends on the connected interface hardware
+- **CAN ports:** Depends on the connected interface (typically 1–4)
+- **Timestamps:** Hardware timer ticks from the VCI driver
+- **Platform:** Windows only
+
+The number of CAN ports and CAN FD capability depend entirely on the physical
+IXXAT interface connected.  For example, a CAN@net NT 420 accessed via VCI
+provides 4 ports with CAN FD on ports 3 and 4, while a USB-to-CAN V2 provides
+2 Classic-CAN-only ports.
+
+### Bitrates (Arbitration)
+
+Preset table: 125, 250, 500, 1000 kbit/s (raw register values).
+Other bitrates: passed directly to the VCI driver as `dwBPS` in bit/s.
+
+### Bitrates (Data Phase, CAN FD)
+
+Preset table: 500, 1000, 2000, 4000, 5000, 8000 kbit/s (raw register values).
+
+### Receive Filtering
+
+VCI hardware acceptance filters are not supported reliably on all IXXAT
+interfaces.  The `VciCan` backend therefore implements **software filtering**:
+the controller always accepts all frames (`CAN_FILTER_PASS`) and incoming
+messages are matched against the configured filters in `receive()` and
+`process_cycle()`.
+
+Up to **5 filters per port** can be configured via `add_filter()`.  A frame is
+accepted if it matches at least one filter:
+
+```
+accepted = (can_id & mask) == (value & mask)  and  id_format matches
+```
+
+If no filters are configured, all frames pass through (accept-all).
+
+---
+
 ## Timestamp Behavior
 
 | Backend      | Source          | Resolution   | Reference                     |
@@ -86,6 +129,7 @@ Additionally: User-defined via register values.
 | TLV-UDP      | Hardware        | ~1 µs        | Device-internal clock         |
 | ASCII-TCP    | Client-side     | ~1 ms        | `time.time()` on receive      |
 | ASCII-UDP    | Client-side     | ~1 ms        | `time.time()` on receive      |
+| VCI          | Hardware        | VCI ticks    | Interface-internal timer      |
 
 **Note:** The BusMonitor displays relative timestamps (from the first received
 frame). For ASCII backends, accuracy is limited by network latency and Python
