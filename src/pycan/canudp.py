@@ -33,6 +33,7 @@ Usage:
 import socket
 import struct
 import time
+from collections import deque
 from typing import Optional, Sequence
 
 try:
@@ -151,6 +152,7 @@ class CanUdp(CanApi):
         )
         self._last_error: tuple[int, str] = (0, "")
         self._receive_callbacks: dict[int, ReceiveCallback] = {}
+        self._rx_buffer: deque[CanMessage] = deque()
 
     # ------------------------------------------------------------------
     # Internal helpers
@@ -164,7 +166,7 @@ class CanUdp(CanApi):
                    timeout: float = 2.0) -> Optional[bytes]:
         """Send a TLV command and return the matching response value, or None on timeout.
 
-        CMD_CAN_RECV frames (cmd=6) arriving while waiting are silently dropped.
+        CMD_CAN_RECV frames (cmd=6) arriving while waiting are buffered.
         """
         self._sock.sendto(self._pack_tlv(cmd, value), (self._host, self._port))
         deadline = time.monotonic() + timeout
@@ -180,8 +182,22 @@ class CanUdp(CanApi):
             resp_value = pkt[3: 3 + length]
             if resp_cmd == cmd:
                 return resp_value
-            # CMD_CAN_RECV frames may arrive concurrently — discard silently
+            # Buffer CAN receive frames that arrive concurrently
+            if resp_cmd == CMD_CAN_RECV:
+                self._buffer_rx_packet(pkt[3:])
         return None
+
+    def _buffer_rx_packet(self, val: bytes) -> None:
+        """Parse a CMD_CAN_RECV payload and append to the RX buffer."""
+        if len(val) < 10:
+            return
+        recv_port = val[0]
+        ts_us = struct.unpack_from("<I", val, 1)[0]
+        recv_fmt = val[5]
+        recv_id = struct.unpack_from("<I", val, 6)[0]
+        payload = bytes(val[10:])
+        msg = self._message_from_fmt(recv_id, payload, recv_fmt, recv_port, ts_us)
+        self._rx_buffer.append(msg)
 
     def _set_error(self, code: int, text: str) -> None:
         self._last_error = (code, text)
@@ -429,13 +445,20 @@ class CanUdp(CanApi):
     def receive(self, port: int = 1, timeout: Optional[float] = 1.0) -> Optional[CanMessage]:
         """Wait for a CAN receive frame (CMD 6) from the device.
 
-        Frames with other command codes are silently discarded.
+        Checks the internal buffer first (filled by _send_recv during
+        command/response exchanges), then reads from the socket.
 
         Args:
             timeout: Seconds to wait; None = wait indefinitely.
 
         Returns CanMessage or None on timeout.
         """
+        # Check buffer first
+        for i, msg in enumerate(self._rx_buffer):
+            if msg.port == port:
+                del self._rx_buffer[i]
+                return msg
+
         wait = timeout if timeout is not None else 1e9
         if wait == 0:
             self._sock.settimeout(0)
@@ -453,6 +476,7 @@ class CanUdp(CanApi):
                 return None
             recv_port = val[0]
             if recv_port != port:
+                self._buffer_rx_packet(val)
                 return None
             ts_us = struct.unpack_from("<I", val, 1)[0]
             recv_fmt = val[5]
@@ -471,12 +495,12 @@ class CanUdp(CanApi):
             cmd, length = struct.unpack_from("<BH", pkt, 0)
             if cmd != CMD_CAN_RECV:
                 continue
-            val = pkt[3:]  # use actual packet size, not TLV length
+            val = pkt[3:]
             if len(val) < 10:
                 continue
-            # value layout: port(1) ts_us(4) fmt(1) id(4) data(0-64)
             recv_port = val[0]
             if recv_port != port:
+                self._buffer_rx_packet(val)
                 continue
             ts_us     = struct.unpack_from("<I", val, 1)[0]
             recv_fmt  = val[5]
