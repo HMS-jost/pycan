@@ -5,7 +5,7 @@
 """
 CAN BusMonitor — migrated from simplyCAN to the pycan generic API.
 
-Supports backends: TLV-UDP, ASCII-TCP, ASCII-UDP.
+Supports backends: TLV-UDP, ASCII-TCP, ASCII-UDP, VCI (IXXAT).
 """
 
 import tempfile
@@ -37,6 +37,13 @@ try:
     )
     from pycan.canudp import CanUdp
     from pycan.ascii_can import AsciiCan
+    if sys.platform == "win32":
+        try:
+            from pycan.vci_can import VciCan
+        except ImportError:
+            VciCan = None
+    else:
+        VciCan = None
 except ImportError:
     # Allow running from source tree without install
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "pycan"))
@@ -56,6 +63,7 @@ except ImportError:
     )
     from canudp import CanUdp
     from ascii_can import AsciiCan
+    VciCan = None
 
 monitorGUI.kToolVersion = "2.0.0"
 monitorGUI.kABOUT = """
@@ -71,7 +79,9 @@ All rights reserved.""" % monitorGUI.kToolVersion
 kTitle = "pyCAN BusMonitor"
 kSETTINGSFILE = "canmonitor_settings.json"
 
-BACKENDS = ("tlv-udp", "ascii-tcp", "ascii-udp")
+BACKENDS = ["tlv-udp", "ascii-tcp", "ascii-udp"]
+if VciCan is not None:
+    BACKENDS.append("vci")
 DEFAULT_PORTS = {
     "tlv-udp": 19236,
     "ascii-tcp": 19228,
@@ -454,7 +464,7 @@ class CanMonitor(monitorGUI.monitorGUI):
             self.write_output("Error: Select a backend type")
             return
         if not address:
-            self.write_output("Error: Enter an IP address")
+            self.write_output("Error: Enter an IP address or device serial")
             return
 
         port = DEFAULT_PORTS.get(backend, 19236)
@@ -469,6 +479,9 @@ class CanMonitor(monitorGUI.monitorGUI):
             elif backend == "ascii-udp":
                 self.api = AsciiCan(host=address, port=port, transport=Transport.UDP, device_family="basic")
                 self.api.open(OpenConfig(transport=Transport.UDP, address=address, port=port, options={"device_family": "basic"}))
+            elif backend == "vci" and VciCan is not None:
+                self.api = VciCan()
+                self.api.open(OpenConfig(transport=Transport.VCI, device_id=address))
             else:
                 self.write_output(f"Unknown backend: {backend}")
                 return
