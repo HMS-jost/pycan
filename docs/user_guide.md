@@ -33,6 +33,22 @@ CAN FD DLC value. Valid payload lengths are 0..8 bytes for Classic CAN and
 
 ## Backend Initialization
 
+For simple cases, open a backend directly from a compact connection string:
+
+```python
+from pycan import connect
+
+can = connect("tlv-udp/10.41.18.123")
+can = connect("ascii-tcp/10.41.18.10")
+can = connect("ascii-udp/10.41.18.11/19228")
+can = connect("vci/HW426714")
+can = connect("virtual/vcan0")
+```
+
+The port component is optional for network backends. TLV UDP defaults to 19236;
+ASCII TCP and ASCII UDP default to 19228. `connect()` returns the opened backend
+instance, so the next step is usually `init_can()`.
+
 ### CAN@net Basic TLV UDP
 
 ```python

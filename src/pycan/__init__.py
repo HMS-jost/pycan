@@ -3,7 +3,7 @@
 
 """Transport-independent CAN API and CAN@net backend implementations."""
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 
 from .can_api import (
 	BusState,
@@ -24,6 +24,7 @@ from .can_api import (
 )
 from .ascii_can import AsciiCan, CanAscii
 from .canudp import CanUdp
+from .connection import connect
 from .virtual import CanVirtual, Virtual
 
 import sys as _sys
@@ -47,6 +48,7 @@ __all__ = [
 	"CanUdp",
 	"CanVci",
 	"CanVirtual",
+	"connect",
 	"ControllerConfig",
 	"DeviceInfo",
 	"FrameFormat",

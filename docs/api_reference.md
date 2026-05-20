@@ -5,6 +5,35 @@ Complete reference for all public classes, enums, and methods defined in
 
 ---
 
+## Convenience Functions
+
+### `connect(target, *, open_timeout=2.0) -> CanApi`
+
+Open a backend from a compact connection string and return the opened backend
+instance.
+
+Supported forms:
+
+| Form                          | Backend                       | Default port |
+|-------------------------------|-------------------------------|--------------|
+| `tlv-udp/<address>[/<port>]`  | CAN@net Basic TLV UDP         | 19236        |
+| `ascii-tcp/<address>[/<port>]`| CAN@net NT ASCII TCP          | 19228        |
+| `ascii-udp/<address>[/<port>]`| CAN@net Basic ASCII UDP       | 19228        |
+| `vci/<serial_number>`         | IXXAT VCI                     | —            |
+| `virtual/<device_id>`         | In-memory virtual backend     | —            |
+
+Example:
+
+```python
+from pycan import connect
+
+can = connect("tlv-udp/10.41.18.123")
+```
+
+`open_timeout` is used for the TLV UDP open command.
+
+---
+
 ## Enums
 
 ### `Transport`

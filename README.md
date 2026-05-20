@@ -24,16 +24,18 @@ python -m pip install -e .
 After installation, import the API from the `pycan` package:
 
 ```python
-from pycan import CanMessage, ControllerConfig, CanTiming, OpenConfig, Transport
-from pycan import CanUdp
+from pycan import CanMessage, ControllerConfig, CanTiming, connect
 
-can = CanUdp()
-can.open(OpenConfig(transport=Transport.UDP, address="10.41.18.123", port=19236))
+can = connect("tlv-udp/10.41.18.123")
 can.init_can(1, ControllerConfig(arbitration=CanTiming(bitrate_kbit=500)))
 can.start_can(1)
 can.send(1, CanMessage(0x200, b"\x11\x22\x33\x44"))
 can.close()
 ```
+
+`connect()` accepts compact connection strings such as
+`tlv-udp/10.41.18.123[/19236]`, `ascii-tcp/10.41.18.10[/19228]`,
+`ascii-udp/10.41.18.11[/19228]`, `vci/HW426714`, and `virtual/vcan0`.
 
 ## Layout
 
@@ -49,6 +51,7 @@ can.close()
 - `pycan.AsciiCan` - CAN@net ASCII backend for NT/TCP and Basic/UDP.
 - `pycan.VciCan` - IXXAT VCI V4 backend (Windows, native DLL).
 - `pycan.Virtual` - In-memory virtual backend for local tests.
+- `pycan.connect` - Opens one backend from a compact connection string.
 
 ## Demos
 
@@ -109,6 +112,14 @@ Examples:
 ```
 
 ## History
+
+### v1.2.0 (2026-05-20)
+
+- Added `pycan.connect()` convenience factory for opening backends from compact
+  connection strings such as `tlv-udp/10.41.18.123`,
+  `ascii-tcp/10.41.18.10/19228`, `vci/HW426714`, and `virtual/vcan0`.
+- Updated the interactive demo to use `pycan.connect()` for backend selection.
+- Documented connection strings in the README, user guide, and API reference.
 
 ### v1.1.0 (2026-05-19)
 

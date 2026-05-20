@@ -41,7 +41,8 @@ else:
     def _getch() -> bytes:
         return sys.stdin.read(1).encode()
 
-from pycan.ascii_can import ASCII_PORT, AsciiCan
+from pycan import connect
+from pycan.ascii_can import ASCII_PORT
 from pycan.can_api import (
     CanApi,
     CanFilter,
@@ -49,14 +50,10 @@ from pycan.can_api import (
     CanStatus,
     CanTiming,
     ControllerConfig,
-    DeviceInfo,
     FrameFormat,
     IdentifierFormat,
-    OpenConfig,
-    Transport,
 )
 from pycan.canudp import CanUdp
-from pycan.virtual import Virtual
 
 if sys.platform == "win32":
     try:
@@ -103,49 +100,26 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def make_backend(args: argparse.Namespace) -> tuple[CanApi, OpenConfig, str]:
+def make_connection_target(args: argparse.Namespace) -> tuple[str, str]:
     address = args.address or args.legacy_address or DEFAULT_TLV_ADDRESS
     if args.backend == "tlv-udp":
         port = args.port or DEFAULT_TLV_PORT
-        return (
-            CanUdp(host=address, port=port),
-            OpenConfig(transport=Transport.UDP, address=address, port=port),
-            f"TLV UDP {address}:{port}",
-        )
+        target = f"tlv-udp/{address}/{args.port}" if args.port else f"tlv-udp/{address}"
+        return target, f"TLV UDP {address}:{port}"
     if args.backend == "ascii-tcp":
         port = args.port or ASCII_PORT
-        return (
-            AsciiCan(host=address, port=port, transport=Transport.TCP, device_family="nt"),
-            OpenConfig(transport=Transport.TCP, address=address, port=port, options={"device_family": "nt"}),
-            f"ASCII TCP {address}:{port}",
-        )
+        target = f"ascii-tcp/{address}/{args.port}" if args.port else f"ascii-tcp/{address}"
+        return target, f"ASCII TCP {address}:{port}"
     if args.backend == "ascii-udp":
         port = args.port or ASCII_PORT
-        return (
-            AsciiCan(host=address, port=port, transport=Transport.UDP, device_family="basic"),
-            OpenConfig(transport=Transport.UDP, address=address, port=port, options={"device_family": "basic"}),
-            f"ASCII UDP {address}:{port}",
-        )
+        target = f"ascii-udp/{address}/{args.port}" if args.port else f"ascii-udp/{address}"
+        return target, f"ASCII UDP {address}:{port}"
     if args.backend == "vci":
         serial = args.device if args.device != "vcan0" else (args.address or "")
         if not serial:
             raise SystemExit("VCI backend requires --device <serial_number>")
-        return (
-            VciCan(),
-            OpenConfig(transport=Transport.VCI, device_id=serial),
-            f"VCI {serial}",
-        )
-    return (
-        Virtual(),
-        OpenConfig(transport=Transport.VIRTUAL, device_id=args.device),
-        f"Virtual {args.device}",
-    )
-
-
-def open_backend(can: CanApi, config: OpenConfig, args: argparse.Namespace) -> DeviceInfo:
-    if isinstance(can, CanUdp):
-        return can.open(config, timeout=args.open_timeout)
-    return can.open(config)
+        return f"vci/{serial}", f"VCI {serial}"
+    return f"virtual/{args.device}", f"Virtual {args.device}"
 
 
 def controller_config(args: argparse.Namespace) -> ControllerConfig:
@@ -207,12 +181,14 @@ def run_load_test(can: CanApi, can_port: int, count: int) -> int:
 
 def main() -> int:
     args = parse_args()
-    can, open_config, label = make_backend(args)
+    target, label = make_connection_target(args)
     print(f"Connecting to {label} ...")
 
     can_port = args.can_port
+    can: CanApi | None = None
     try:
-        info = open_backend(can, open_config, args)
+        can = connect(target, open_timeout=args.open_timeout)
+        info = can.identify()
         print(f"  Device: {info.name or info.device_id}  CAN port: {can_port}")
         configure_can(can, can_port, args)
         print_status(can, can_port, "STATUS")
@@ -271,7 +247,8 @@ def main() -> int:
         print(f"ERROR: {exc}")
         return 1
     finally:
-        can.close()
+        if can is not None:
+            can.close()
 
 
 if __name__ == "__main__":
