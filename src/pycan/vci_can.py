@@ -147,6 +147,7 @@ class VciCan(CanApi):
 
     def close(self) -> None:
         if self._vci is not None:
+            time.sleep(0.1)
             for ch in range(MAX_PORTS):
                 if self._vci.lCanStarted[ch]:
                     self._vci.closeCanChannel(ch)

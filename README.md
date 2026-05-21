@@ -37,6 +37,23 @@ can.close()
 `tlv-udp/10.41.18.123[/19236]`, `ascii-tcp/10.41.18.10[/19228]`,
 `ascii-udp/10.41.18.11[/19228]`, `vci/HW426714`, and `virtual/vcan0`.
 
+Receive example:
+
+```python
+import msvcrt
+from pycan import ControllerConfig, CanTiming, connect, CanFilter, IdentifierFormat
+
+can = connect("vci/A0785D79")
+can.init_can(1, ControllerConfig(arbitration=CanTiming(bitrate_kbit=500)))
+can.add_filter(1, CanFilter(IdentifierFormat.STANDARD, mask=0, value=0))
+can.start_can(1)
+while not msvcrt.kbhit():
+    msg = can.receive(1)
+    if msg:
+        print(msg)
+can.close()
+```
+
 ## Layout
 
 - `src/pycan/` - Package source code and backend implementations.
@@ -112,6 +129,14 @@ Examples:
 ```
 
 ## History
+
+### v1.2.1 (2026-05-21)
+
+- Fixed premature close: `close()` now waits briefly (100 ms) for pending TX
+  frames to be transmitted before disconnecting (affects all network backends).
+- Demo defaults to Classic CAN; use `--fd` flag to enable CAN FD mode.
+- Cross-platform support: demo uses `termios`/`select` on Linux.
+- Added receive example to README.
 
 ### v1.2.0 (2026-05-20)
 

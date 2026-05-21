@@ -3,7 +3,7 @@
 
 """Transport-independent CAN API and CAN@net backend implementations."""
 
-__version__ = "1.2.0"
+__version__ = "1.2.1"
 
 from .can_api import (
 	BusState,

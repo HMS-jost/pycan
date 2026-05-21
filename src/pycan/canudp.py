@@ -535,6 +535,7 @@ class CanUdp(CanApi):
 
     def close(self) -> None:
         """Send Close command (device stops sending CAN frames to us) and close socket."""
+        time.sleep(0.1)
         try:
             self._sock.sendto(self._pack_tlv(CMD_CLOSE), (self._host, self._port))
         except Exception:

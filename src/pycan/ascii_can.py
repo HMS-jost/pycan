@@ -355,6 +355,7 @@ class AsciiCan(CanApi):
     def close(self) -> None:
         """Close the ASCII connection."""
 
+        time.sleep(0.1)
         if self._transport is not None:
             self._transport.close()
         self._transport = None
