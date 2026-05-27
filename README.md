@@ -109,7 +109,7 @@ pcbm
 ![pyCAN BusMonitor](screenshot.png)
 
 Features:
-- Backend selection: TLV-UDP, ASCII-TCP, ASCII-UDP
+- Backend selection: TLV-UDP, ASCII-TCP, ASCII-UDP, CANM-UDP, VCI
 - IP address and CAN port configuration (1–4)
 - Configurable bitrate
 - Live receive display with timestamps, hex data, and ASCII decode

@@ -7,18 +7,18 @@ protocol-level constraints.
 
 ## Backend Summary
 
-| Property              | TLV-UDP (CAN@net Basic)         | ASCII-TCP (CAN@net NT)          | ASCII-UDP (CAN@net Basic)       | VCI (IXXAT)                     |
-|-----------------------|---------------------------------|---------------------------------|---------------------------------|---------------------------------|
-| **Status**            | Preliminary                     | Stable                          | Stable                          | Stable                          |
-| **Python class**      | `CanUdp`                        | `AsciiCan`                      | `AsciiCan`                      | `VciCan`                        |
-| **Transport**         | UDP                             | TCP                             | UDP                             | Native DLL (vcinpl2.dll)        |
-| **Default port**      | 19236                           | 19228                           | 19228                           | —                               |
-| **Device family**     | `basic`                         | `nt`                            | `basic`                         | —                               |
-| **CAN ports**         | 1                               | 1–4 (device dependent)          | 1                               | 1–4 (interface dependent)       |
-| **CAN FD**            | Yes (port 1)                    | Device dependent (see below)    | Yes (port 1)                    | Interface dependent             |
-| **Timestamps**        | Hardware (µs resolution)        | Client-side (`time.time()`)     | Client-side (`time.time()`)     | Hardware (VCI timer ticks)      |
-| **Burst capability**  | `send_many()` with TX queue     | `send_many()` with TX queue     | `send_many()` with TX queue     | `send_many()` direct send       |
-| **Platform**          | Windows, Linux                  | Windows, Linux                  | Windows, Linux                  | Windows only                    |
+| Property              | TLV-UDP (CAN@net Basic)         | ASCII-TCP (CAN@net NT)          | ASCII-UDP (CAN@net Basic)       | CANM-UDP (Multicast Bridge)     | VCI (IXXAT)                     |
+|-----------------------|---------------------------------|---------------------------------|---------------------------------|---------------------------------|---------------------------------|
+| **Status**            | Preliminary                     | Stable                          | Stable                          | Stable                          | Stable                          |
+| **Python class**      | `CanUdp`                        | `AsciiCan`                      | `AsciiCan`                      | `CanmUdp`                       | `VciCan`                        |
+| **Transport**         | UDP                             | TCP                             | UDP                             | UDP Multicast                   | Native DLL (vcinpl2.dll)        |
+| **Default port**      | 19236                           | 19228                           | 19228                           | 50009                           | —                               |
+| **Device family**     | `basic`                         | `nt`                            | `basic`                         | `basic` (multicast)             | —                               |
+| **CAN ports**         | 1                               | 1–4 (device dependent)          | 1                               | 1 (logical)                     | 1–4 (interface dependent)       |
+| **CAN FD**            | Yes (port 1)                    | Device dependent (see below)    | Yes (port 1)                    | Yes                             | Interface dependent             |
+| **Timestamps**        | Hardware (µs resolution)        | Client-side (`time.time()`)     | Client-side (`time.time()`)     | Client-side (`time.time()`)     | Hardware (VCI timer ticks)      |
+| **Burst capability**  | `send_many()` with TX queue     | `send_many()` with TX queue     | `send_many()` with TX queue     | `send_many()` sequential        | `send_many()` direct send       |
+| **Platform**          | Windows, Linux                  | Windows, Linux                  | Windows, Linux                  | Windows, Linux                  | Windows only                    |
 
 ---
 
@@ -122,6 +122,52 @@ If no filters are configured, all frames pass through (accept-all).
 
 ---
 
+## CAN@net CANM Multicast Bridge (CANM-UDP)
+
+- **Protocol:** CANM binary format over UDP multicast
+- **Default multicast group:** 225.0.0.250
+- **Default port:** 50009
+- **CAN FD:** Yes (Classic CAN and CAN FD frames)
+- **Timestamps:** Client-side (`time.time()`) when parsing received datagrams
+- **Status:** Stable
+
+The CANM protocol is used by CAN@net Basic devices to exchange CAN frames over
+a UDP multicast backbone. Up to 64 devices can participate in the same multicast
+group. The PC joins the group and acts as a virtual participant — sending and
+receiving CAN frames alongside the embedded devices.
+
+### Key Differences from Other Backends
+
+- **No CAN controller management:** `init_can()`, `start_can()`, and `stop_can()`
+  are not supported (raise `CanApiError`). The multicast bus is always active.
+- **Multiple frames per datagram:** A single UDP packet may contain multiple
+  CAN frames, each with a 16-byte CANM header + 12-byte CAN header.
+- **Software filtering:** Receive filters are applied in software, identical to
+  the VCI backend pattern.
+- **Background listener thread:** Incoming multicast packets are received and
+  parsed in a daemon thread; `receive()` reads from an internal queue.
+
+### Connection String
+
+```
+canm-udp/225.0.0.250        (default port 50009)
+canm-udp/225.0.0.250/50009  (explicit port)
+```
+
+### Usage Example
+
+```python
+from pycan import connect, CanFilter, IdentifierFormat, CanMessage
+
+can = connect("canm-udp/225.0.0.250")
+can.add_filter(1, CanFilter(IdentifierFormat.STANDARD, mask=0, value=0))
+can.send(1, CanMessage(0x123, b"\x01\x02\x03\x04"))
+msg = can.receive(1, timeout=1.0)
+can.close()
+```
+
+---
+
 ## Timestamp Behavior
 
 | Backend      | Source          | Resolution   | Reference                     |
@@ -129,6 +175,7 @@ If no filters are configured, all frames pass through (accept-all).
 | TLV-UDP      | Hardware        | ~1 µs        | Device-internal clock         |
 | ASCII-TCP    | Client-side     | ~1 ms        | `time.time()` on receive      |
 | ASCII-UDP    | Client-side     | ~1 ms        | `time.time()` on receive      |
+| CANM-UDP     | Client-side     | ~1 ms        | `time.time()` on receive      |
 | VCI          | Hardware        | VCI ticks    | Interface-internal timer      |
 
 **Note:** The BusMonitor displays relative timestamps (from the first received

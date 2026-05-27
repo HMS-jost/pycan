@@ -41,13 +41,15 @@ from pycan import connect
 can = connect("tlv-udp/10.41.18.123")
 can = connect("ascii-tcp/10.41.18.10")
 can = connect("ascii-udp/10.41.18.11/19228")
+can = connect("canm-udp/225.0.0.250")
 can = connect("vci/HW426714")
 can = connect("virtual/vcan0")
 ```
 
 The port component is optional for network backends. TLV UDP defaults to 19236;
-ASCII TCP and ASCII UDP default to 19228. `connect()` returns the opened backend
-instance, so the next step is usually `init_can()`.
+ASCII TCP and ASCII UDP default to 19228; CANM UDP defaults to 50009.
+`connect()` returns the opened backend instance, so the next step is usually
+`init_can()` (except for CANM-UDP, which requires no CAN initialization).
 
 ### CAN@net Basic TLV UDP
 
@@ -107,6 +109,34 @@ can.open(OpenConfig(transport=Transport.VCI, device_id="HW426714"))
 The `device_id` is the IXXAT serial number printed on the interface (e.g.
 `HW426714`).  CAN port count and CAN FD capability depend on the connected
 hardware.
+
+### CAN@net CANM Multicast Bridge
+
+```python
+from pycan import CanmUdp, OpenConfig, Transport
+
+can = CanmUdp()
+can.open(OpenConfig(transport=Transport.CANM_UDP, address="225.0.0.250", port=50009))
+```
+
+Or via the connection string shorthand:
+
+```python
+from pycan import connect
+
+can = connect("canm-udp/225.0.0.250")
+```
+
+The CANM backend does **not** require `init_can()` or `start_can()` — the
+multicast bus is always active. After `open()`, configure receive filters and
+start sending/receiving immediately:
+
+```python
+can.add_filter(1, CanFilter(IdentifierFormat.STANDARD, mask=0, value=0))
+can.send(1, CanMessage(0x100, b"\x01\x02\x03"))
+msg = can.receive(1, timeout=1.0)
+can.close()
+```
 
 ## CAN Initialization
 

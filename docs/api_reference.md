@@ -19,6 +19,7 @@ Supported forms:
 | `tlv-udp/<address>[/<port>]`  | CAN@net Basic TLV UDP         | 19236        |
 | `ascii-tcp/<address>[/<port>]`| CAN@net NT ASCII TCP          | 19228        |
 | `ascii-udp/<address>[/<port>]`| CAN@net Basic ASCII UDP       | 19228        |
+| `canm-udp/<address>[/<port>]` | CAN@net CANM multicast bridge | 50009        |
 | `vci/<serial_number>`         | IXXAT VCI                     | —            |
 | `virtual/<device_id>`         | In-memory virtual backend     | —            |
 
@@ -48,6 +49,7 @@ Connection transport used to reach a CAN device.
 | `SERIAL`   | Serial / COM port                  |
 | `TCP`      | TCP socket                         |
 | `UDP`      | UDP socket                         |
+| `CANM_UDP` | CANM multicast (UDP)               |
 | `VCI`      | VCI-style driver (Windows)         |
 
 ### `BusState`
