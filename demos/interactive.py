@@ -8,6 +8,7 @@ Run after installing the package, for example:
     pycan-demo --backend tlv-udp --address 10.41.18.123
     pycan-demo --backend ascii-tcp --address 10.41.18.10
     pycan-demo --backend ascii-udp --address 10.41.18.11
+    pycan-demo --backend canm-udp --address 225.0.0.250
     pycan-demo --backend vci --device A0785D79
     pycan-demo --backend vci --device A0785D79 --can-port 2
     pycan-demo --backend virtual --device vcan0
@@ -79,7 +80,7 @@ DEFAULT_LOAD_COUNT = 1000
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Interactive demo for the common CAN API backends.")
     parser.add_argument("legacy_address", nargs="?", help="Backward-compatible TLV UDP address argument")
-    backends = ["tlv-udp", "ascii-tcp", "ascii-udp", "virtual"]
+    backends = ["tlv-udp", "ascii-tcp", "ascii-udp", "canm-udp", "virtual"]
     if VciCan is not None:
         backends.append("vci")
     parser.add_argument(
@@ -114,6 +115,11 @@ def make_connection_target(args: argparse.Namespace) -> tuple[str, str]:
         port = args.port or ASCII_PORT
         target = f"ascii-udp/{address}/{args.port}" if args.port else f"ascii-udp/{address}"
         return target, f"ASCII UDP {address}:{port}"
+    if args.backend == "canm-udp":
+        address = args.address or "225.0.0.250"
+        port = args.port or 50009
+        target = f"canm-udp/{address}/{args.port}" if args.port else f"canm-udp/{address}"
+        return target, f"CANM UDP {address}:{port}"
     if args.backend == "vci":
         serial = args.device if args.device != "vcan0" else (args.address or "")
         if not serial:
@@ -190,8 +196,13 @@ def main() -> int:
         can = connect(target, open_timeout=args.open_timeout)
         info = can.identify()
         print(f"  Device: {info.name or info.device_id}  CAN port: {can_port}")
-        configure_can(can, can_port, args)
-        print_status(can, can_port, "STATUS")
+        if args.backend != "canm-udp":
+            configure_can(can, can_port, args)
+            print_status(can, can_port, "STATUS")
+        else:
+            can.add_filter(can_port, CanFilter(IdentifierFormat.STANDARD, mask=0, value=0))
+            can.add_filter(can_port, CanFilter(IdentifierFormat.EXTENDED, mask=0, value=0))
+            print("  CANM multicast active (no init/start needed)")
 
         tx_count = 0
         rx_count = 0

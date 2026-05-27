@@ -417,3 +417,7 @@ class CanmUdp(CanApi):
     def get_last_error(self) -> tuple[int, str]:
         """Return the last error code and text."""
         return self._last_error
+
+    def process_cycle(self) -> None:
+        """No-op — listener thread handles receive processing."""
+        pass
