@@ -46,9 +46,11 @@ _CANM_BGI_TYPE_CAN = 0x06  # Classic CAN frame
 _CANM_BGI_TYPE_FD = 0x08   # CAN-FD frame
 _CANM_BGI_TYPES = {_CANM_BGI_TYPE_CAN, _CANM_BGI_TYPE_FD}
 _CANM_SOURCE_PC = 0x10
-_CANM_HDR_SIZE = 16
-_CANM_CAN_HDR_SIZE = 12
-_CANM_EXTRA_SIZE = 52
+_CANM_MAGIC_SIZE = 4        # "CANM" datagram prefix (once per UDP packet)
+_CANM_HDR_SIZE = 12         # MSG_t_HDR
+_CANM_CAN_HDR_SIZE = 12    # MSG_t_CAN_HDR
+_CANM_FD_DATA_SIZE = 64    # au8_data[64] in MSG_t_CANFD_BGI_MSG
+_CANM_MSG_SIZE = _CANM_HDR_SIZE + _CANM_CAN_HDR_SIZE + _CANM_FD_DATA_SIZE  # 88 bytes per frame
 _CANM_FMT_EXT = 0x01
 _CANM_FMT_RTR = 0x02
 _CANM_FMT_FDF = 0x10
@@ -79,7 +81,11 @@ def _build_canm_packet(
     bitrate_switch: bool = False,
     port: int = 1,
 ) -> bytes:
-    """Build a single CANM frame packet."""
+    """Build a CANM UDP datagram containing one CAN frame.
+
+    On-wire layout: "CANM"(4) + MSG_t_CANFD_BGI_MSG(88)
+    MSG_t_CANFD_BGI_MSG = MSG_t_HDR(12) + MSG_t_CAN_HDR(12) + au8_data[64]
+    """
     dlc = len(data)
     fmt_byte = 0
     if is_extended:
@@ -88,37 +94,56 @@ def _build_canm_packet(
         fmt_byte |= _CANM_FMT_FDF
     if bitrate_switch:
         fmt_byte |= _CANM_FMT_BRS
-    extra = bytes(_CANM_EXTRA_SIZE)
-    total_size = _CANM_HDR_SIZE + _CANM_CAN_HDR_SIZE + dlc + len(extra)
-    timestamp = int(time.time() * 1000) & 0xFFFF
+
     mtype = _CANM_BGI_TYPE_FD if is_fd else _CANM_BGI_TYPE_CAN
+    timestamp = int(time.time() * 1000) & 0xFFFF
+    # u16_num = size from MSG_t_HDR start: HDR(12) + CAN_HDR(12) + dlc
+    u16_num = _CANM_HDR_SIZE + _CANM_CAN_HDR_SIZE + dlc
+
+    # MSG_t_HDR: u32_reserved(4) + u16_num(2) + u16_topic(2) +
+    #            u16_timestamp(2) + u8_source(1) + u8_type(1)
     bgi_header = struct.pack(
-        "<4sIHHHBB",
-        _CANM_MAGIC, 0, total_size, 0, timestamp, _CANM_SOURCE_PC, mtype,
+        "<IHHHBB",
+        0, u16_num, 0, timestamp, _CANM_SOURCE_PC, mtype,
     )
+    # MSG_t_CAN_HDR: u32_id(4) + u8_dlc(1) + u8_format(1) + u8_port(1) +
+    #               u8_tbd(1) + pu8_reserved(4)
     can_header = struct.pack("<IBBBBI", can_id, dlc, fmt_byte, port, 0, 0)
-    return bgi_header + can_header + data + extra
+    # au8_data[64] — payload padded to fixed 64 bytes
+    data_padded = data + bytes(_CANM_FD_DATA_SIZE - dlc)
+
+    return _CANM_MAGIC + bgi_header + can_header + data_padded
 
 
 def _parse_canm_frames(data: bytes) -> list[CanMessage]:
-    """Parse one UDP datagram that may contain multiple CANM frames."""
+    """Parse one UDP datagram that may contain multiple CANM frames.
+
+    On-wire layout:
+      "CANM"(4) + N × MSG_t_CANFD_BGI_MSG(88)
+    Each MSG_t_CANFD_BGI_MSG:
+      MSG_t_HDR(12) + MSG_t_CAN_HDR(12) + au8_data[64]
+    Frames are iterated in fixed 88-byte steps after the 4-byte magic prefix.
+    """
     messages: list[CanMessage] = []
-    offset = 0
+    # Validate datagram magic prefix
+    if len(data) < _CANM_MAGIC_SIZE or data[:4] != _CANM_MAGIC:
+        return messages
+
+    offset = _CANM_MAGIC_SIZE  # skip "CANM" prefix
     while offset + _CANM_HDR_SIZE + _CANM_CAN_HDR_SIZE <= len(data):
-        # Validate magic
-        if data[offset:offset + 4] != _CANM_MAGIC:
-            break
+        # Parse MSG_t_HDR (12 bytes): u32_reserved, u16_num, u16_topic,
+        #   u16_timestamp, u8_source, u8_type
         try:
-            _magic, _res, total_size, _topic, ts, _src, mtype = struct.unpack_from(
-                "<4sIHHHBB", data, offset
+            _res, _num, _topic, _ts, _src, mtype = struct.unpack_from(
+                "<IHHHBB", data, offset
             )
         except struct.error:
             break
         if mtype not in _CANM_BGI_TYPES:
-            break
-        if offset + total_size > len(data):
-            break
-        # Parse CAN header
+            offset += _CANM_MSG_SIZE
+            continue
+
+        # Parse MSG_t_CAN_HDR (12 bytes) at offset + 12
         can_offset = offset + _CANM_HDR_SIZE
         try:
             can_id, dlc, fmt, port, _tbd, _res2 = struct.unpack_from(
@@ -126,8 +151,10 @@ def _parse_canm_frames(data: bytes) -> list[CanMessage]:
             )
         except struct.error:
             break
+
+        # Payload starts after CAN header, within the 64-byte data area
         payload_start = can_offset + _CANM_CAN_HDR_SIZE
-        payload = data[payload_start:payload_start + dlc]
+        payload = data[payload_start:payload_start + min(dlc, _CANM_FD_DATA_SIZE)]
 
         # Determine formats
         is_ext = bool(fmt & _CANM_FMT_EXT)
@@ -155,7 +182,7 @@ def _parse_canm_frames(data: bytes) -> list[CanMessage]:
             port=port,
         )
         messages.append(msg)
-        offset += total_size
+        offset += _CANM_MSG_SIZE  # fixed 88-byte step
 
     return messages
 
