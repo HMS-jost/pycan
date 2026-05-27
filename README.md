@@ -2,7 +2,8 @@
 
 `pycan` is a small transport-independent CAN API for Classic CAN and CAN FD.
 It currently provides backends for CAN@net Basic via TLV UDP and ASCII UDP,
-CAN@net NT ASCII TCP, IXXAT VCI (Windows), and an in-memory virtual bus.
+CAN@net NT ASCII TCP, IXXAT VCI (Windows), CAN@net CANM multicast bridge,
+and an in-memory virtual bus.
 
 Supported platforms: **Windows** and **Linux** (any platform with Python 3.12+
 and standard sockets).
@@ -35,7 +36,8 @@ can.close()
 
 `connect()` accepts compact connection strings such as
 `tlv-udp/10.41.18.123[/19236]`, `ascii-tcp/10.41.18.10[/19228]`,
-`ascii-udp/10.41.18.11[/19228]`, `vci/HW426714`, and `virtual/vcan0`.
+`ascii-udp/10.41.18.11[/19228]`, `canm-udp/225.0.0.250[/50009]`,
+`vci/HW426714`, and `virtual/vcan0`.
 
 Receive example:
 
@@ -66,6 +68,7 @@ can.close()
 
 - `pycan.CanUdp` - CAN@net Basic TLV UDP backend.
 - `pycan.AsciiCan` - CAN@net ASCII backend for NT/TCP and Basic/UDP.
+- `pycan.CanmUdp` - CAN@net CANM multicast bridge (UDP multicast, up to 64 devices).
 - `pycan.VciCan` - IXXAT VCI V4 backend (Windows, native DLL).
 - `pycan.Virtual` - In-memory virtual backend for local tests.
 - `pycan.connect` - Opens one backend from a compact connection string.
@@ -129,6 +132,16 @@ Examples:
 ```
 
 ## History
+
+### v1.3.0 (2026-05-27)
+
+- **New backend: CANM-UDP** — `CanmUdp` joins a UDP multicast group
+  (default 225.0.0.250:50009) used by CAN@net Basic devices for CAN-over-UDP
+  backbone communication. Supports send, receive with SW filtering, Classic CAN
+  and CAN FD. No init/start/stop (the multicast bus is always active).
+- Connection string: `canm-udp/225.0.0.250/50009`.
+- BusMonitor: added CANM-UDP backend; CAN is auto-started on connect.
+- Documentation updated.
 
 ### v1.2.1 (2026-05-21)
 

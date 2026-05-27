@@ -36,6 +36,7 @@ class Transport(Enum):
     TCP = auto()
     UDP = auto()
     VCI = auto()
+    CANM_UDP = auto()
     TBD = auto()
 
 

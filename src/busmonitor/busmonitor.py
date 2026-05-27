@@ -5,7 +5,7 @@
 """
 CAN BusMonitor — migrated from simplyCAN to the pycan generic API.
 
-Supports backends: TLV-UDP, ASCII-TCP, ASCII-UDP, VCI (IXXAT).
+Supports backends: TLV-UDP, ASCII-TCP, ASCII-UDP, VCI (IXXAT), CANM-UDP.
 """
 
 import tempfile
@@ -37,6 +37,7 @@ try:
     )
     from pycan.canudp import CanUdp
     from pycan.ascii_can import AsciiCan
+    from pycan.canm_udp import CanmUdp, CANM_DEFAULT_PORT
     if sys.platform == "win32":
         try:
             from pycan.vci_can import VciCan
@@ -63,6 +64,7 @@ except ImportError:
     )
     from canudp import CanUdp
     from ascii_can import AsciiCan
+    from canm_udp import CanmUdp, CANM_DEFAULT_PORT
     VciCan = None
 
 monitorGUI.kToolVersion = "2.0.0"
@@ -79,13 +81,14 @@ All rights reserved.""" % monitorGUI.kToolVersion
 kTitle = "pyCAN BusMonitor"
 kSETTINGSFILE = "canmonitor_settings.json"
 
-BACKENDS = ["tlv-udp", "ascii-tcp", "ascii-udp"]
+BACKENDS = ["tlv-udp", "ascii-tcp", "ascii-udp", "canm-udp"]
 if VciCan is not None:
     BACKENDS.append("vci")
 DEFAULT_PORTS = {
     "tlv-udp": 19236,
     "ascii-tcp": 19228,
     "ascii-udp": 19228,
+    "canm-udp": 50009,
 }
 CAN_PORT = 1
 
@@ -483,6 +486,10 @@ class CanMonitor(monitorGUI.monitorGUI):
             elif backend == "vci" and VciCan is not None:
                 self.api = VciCan()
                 self.api.open(OpenConfig(transport=Transport.VCI, device_id=address))
+            elif backend == "canm-udp":
+                port = DEFAULT_PORTS.get(backend, CANM_DEFAULT_PORT)
+                self.api = CanmUdp(address=address, port=port)
+                self.api.open(OpenConfig(transport=Transport.CANM_UDP, address=address, port=port))
             else:
                 self.write_output(f"Unknown backend: {backend}")
                 return
@@ -501,6 +508,13 @@ class CanMonitor(monitorGUI.monitorGUI):
         self.lblSerialNumberTextVar.set(address)
         self.lblHWVersionTextVar.set(f"CAN port: {self.can_port}")
         self.lblFWVersionTextVar.set("")
+
+        # CANM-UDP: CAN is always "running" (no init/start needed)
+        if backend == "canm-udp":
+            self.canState = "started"
+            self.receiveCnt = 0
+            self.timestamp_base = 0
+
         self.RefreshGui()
 
     def onTargetDisconnect(self):
@@ -526,6 +540,17 @@ class CanMonitor(monitorGUI.monitorGUI):
     # CAN Start / Stop
     # -----------------------------------------------------------------
     def onCanStart(self):
+        # CANM-UDP: skip init/start, just set filters
+        if isinstance(self.api, CanmUdp):
+            self.api.clear_filters(self.can_port)
+            self.api.add_filter(self.can_port, CanFilter(IdentifierFormat.STANDARD, mask=0, value=0))
+            self.api.add_filter(self.can_port, CanFilter(IdentifierFormat.EXTENDED, mask=0, value=0))
+            self.canState = "started"
+            self.receiveCnt = 0
+            self.timestamp_base = 0
+            self.RefreshGui()
+            return
+
         baudrate_str = self.cbBaudrate.get()
         bitrate = int(baudrate_str) if baudrate_str.isdigit() else 0
         if bitrate <= 0:
@@ -569,6 +594,9 @@ class CanMonitor(monitorGUI.monitorGUI):
         self.RefreshGui()
 
     def onCanStop(self):
+        if isinstance(self.api, CanmUdp):
+            self.write_output("CANM multicast: stop not supported (use disconnect)")
+            return
         try:
             self.api.stop_can(self.can_port)
         except Exception as e:

@@ -9,6 +9,7 @@ import sys
 
 from .ascii_can import ASCII_PORT, AsciiCan
 from .can_api import CanApi, CanApiError, OpenConfig, Transport
+from .canm_udp import CANM_DEFAULT_PORT, CanmUdp
 from .canudp import CanUdp
 from .virtual import Virtual
 
@@ -31,11 +32,12 @@ def connect(target: str, *, open_timeout: float = 2.0) -> CanApi:
         tlv-udp/<address>[/<port>]
         ascii-tcp/<address>[/<port>]
         ascii-udp/<address>[/<port>]
+        canm-udp/<multicast_address>[/<port>]
         vci/<serial_number>
         virtual/<device_id>
 
     Network ports are optional. TLV UDP defaults to 19236, ASCII TCP/UDP to
-    19228. The returned backend instance is already opened.
+    19228, CANM-UDP to 50009. The returned backend instance is already opened.
     """
 
     backend, endpoint, port = _parse_target(target)
@@ -106,6 +108,21 @@ def connect(target: str, *, open_timeout: float = 2.0) -> CanApi:
         can = VciCan()
         try:
             can.open(OpenConfig(transport=Transport.VCI, device_id=endpoint))
+        except Exception:
+            can.close()
+            raise
+        return can
+
+    if backend == "canm-udp":
+        can = CanmUdp(address=endpoint, port=port or CANM_DEFAULT_PORT)
+        try:
+            can.open(
+                OpenConfig(
+                    transport=Transport.CANM_UDP,
+                    address=endpoint,
+                    port=port or CANM_DEFAULT_PORT,
+                )
+            )
         except Exception:
             can.close()
             raise
